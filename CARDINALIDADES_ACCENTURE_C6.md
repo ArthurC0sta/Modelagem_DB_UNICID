@@ -21,10 +21,10 @@ O modelo acadêmico possui sete entidades:
 | `AUTOMACAO` | 1 : 0..N | `EXECUCAO` | Uma execução pertence obrigatoriamente a uma automação; uma automação pode ainda não ter execuções. |
 | `EXECUCAO` | 1 : 0..N | `CONTRATO` | Um contrato processado pertence a uma única execução; uma execução pode terminar sem contratos retornados. |
 | `EXECUCAO` | 1 : 0..N | `EVENTO_EXECUCAO` | Todo evento pertence a uma execução; a execução pode existir antes do primeiro evento. |
-| `CONTRATO` | 1 : 0..N | `EVENTO_EXECUCAO` | Um evento pode se referir a um contrato; eventos gerais da execução mantêm a FK de contrato nula. |
+| `CONTRATO` | 0..1 : 0..N | `EVENTO_EXECUCAO` | Um evento refere-se a zero ou um contrato; um contrato pode possuir vários eventos. Eventos gerais mantêm a FK de contrato nula. |
 | `CONTRATO` | 1 : 0..N | `CONTRATO_LOTE_IMPORTACAO` | Um contrato pode não ser importado ou pode participar de diferentes lotes ao longo do processo. |
 | `LOTE_IMPORTACAO` | 1 : 1..N | `CONTRATO_LOTE_IMPORTACAO` | Um lote representa uma importação efetiva e deve conter pelo menos um contrato. |
-| `LOTE_IMPORTACAO` | 1 : 1..N | `INSTANCIA_IMPORTACAO` | Um lote é acompanhado por uma ou mais instâncias/tickets de importação. |
+| `LOTE_IMPORTACAO` | 1 : 0..N | `INSTANCIA_IMPORTACAO` | Um lote pode existir antes do retorno do CSLOG. Após o envio aceito, deve possuir ao menos uma instância/ticket. |
 
 ## Relação muitos-para-muitos resolvida
 

@@ -582,7 +582,9 @@ As alternativas rejeitadas não foram descartadas por inexistirem no sistema fí
 
 ### Uso de Inteligência Artificial
 
-O grupo utilizou **ChatGPT/Codex, da OpenAI**, como apoio à leitura, organização, revisão e documentação. A IA não teve acesso autônomo a ambiente produtivo nem substituiu a pesquisa de campo. Todas as decisões foram confrontadas com o código, a documentação e as informações fornecidas pelas pessoas consultadas.
+O grupo utilizou **ChatGPT/Codex, da OpenAI**, como apoio à leitura, organização, revisão e documentação. A ferramenta também atuou como recurso de **mentoria técnica e acadêmica**, auxiliando na comparação de alternativas, na identificação de inconsistências e na organização do raciocínio.
+
+A IA não teve acesso autônomo ao ambiente produtivo, não realizou a pesquisa de campo e não assumiu autoria nem responsabilidade pelo trabalho. O conhecimento do processo, o levantamento das evidências, a validação das respostas e as decisões finais permaneceram sob responsabilidade dos integrantes do grupo. Todas as sugestões utilizadas foram confrontadas com o código, a documentação e as informações fornecidas pelas pessoas consultadas.
 
 #### Uso 1 — Levantamento do processo real
 

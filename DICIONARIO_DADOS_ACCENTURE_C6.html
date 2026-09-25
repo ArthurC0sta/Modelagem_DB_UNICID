@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dicionário de Dados — Automação Accenture C6</title>
+  <style>
+    :root { --navy:#16345b; --blue:#1f6fb2; --cyan:#18a8c9; --ink:#17263a; --muted:#5c6b7a; --line:#ccd8e5; --paper:#fff; --bg:#f4f7fb; --soft:#eaf1f8; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.55 Arial, sans-serif; }
+    header { padding:48px max(24px, calc((100% - 1180px)/2)); color:#fff; background:var(--navy); border-bottom:6px solid var(--cyan); }
+    header p { max-width:850px; margin:10px 0 0; color:#dce8f5; }
+    h1 { margin:0; font-size:clamp(2rem,5vw,3.5rem); line-height:1.05; }
+    h2 { margin:0; color:var(--navy); font-size:1.65rem; }
+    h3 { margin:4px 0 0; color:var(--muted); font-size:1rem; font-weight:normal; }
+    main { width:min(1180px, calc(100% - 32px)); margin:32px auto 72px; }
+    nav, .notice, section { background:var(--paper); border:1px solid var(--line); border-radius:16px; }
+    nav, .notice { padding:20px 24px; margin-bottom:22px; }
+    nav ul { display:flex; flex-wrap:wrap; gap:10px; padding:0; margin:12px 0 0; list-style:none; }
+    nav a { display:block; padding:7px 11px; color:var(--navy); background:var(--soft); border-radius:8px; text-decoration:none; font-weight:bold; }
+    nav a:hover, nav a:focus-visible { outline:3px solid var(--cyan); }
+    .notice { border-left:6px solid var(--cyan); }
+    .legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .tag { padding:4px 8px; color:var(--navy); background:var(--soft); border-radius:6px; font-size:.85rem; font-weight:bold; }
+    section { overflow:hidden; margin:24px 0; page-break-inside:avoid; }
+    .section-head { padding:22px 24px; background:linear-gradient(90deg, var(--soft), #fff); border-bottom:1px solid var(--line); }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    th { padding:13px 16px; color:#fff; background:var(--navy); text-align:left; font-size:.9rem; letter-spacing:.02em; }
+    td { padding:12px 16px; border-bottom:1px solid var(--line); vertical-align:top; }
+    tbody tr:nth-child(even) { background:#f7f9fc; }
+    tbody tr:last-child td { border-bottom:0; }
+    code { color:#0f5d89; background:#e7f5f9; border-radius:5px; padding:2px 5px; font-weight:bold; white-space:nowrap; }
+    footer { padding:28px; color:var(--muted); text-align:center; }
+    @media (max-width:700px) { th,td { min-width:220px; } th:first-child,td:first-child { min-width:175px; } }
+    @media print {
+      @page { size:A4 landscape; margin:12mm; }
+      body { background:#fff; font-size:10pt; }
+      header { padding:20px 0; color:var(--ink); background:#fff; border-bottom:3px solid var(--navy); }
+      header p { color:var(--muted); }
+      main { width:100%; margin:14px 0; }
+      nav { display:none; }
+      .notice, section { border-radius:0; box-shadow:none; }
+      section { break-before:page; }
+      section:first-of-type { break-before:auto; }
+      .section-head { padding:12px; }
+      th,td { padding:7px 9px; }
+      a { color:inherit; text-decoration:none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Dicionário de Dados</h1>
+    <p>Modelo conceitual preliminar da Automação Accenture C6 — QORE Tecnologia. Documento complementar à Entrega 1 da disciplina de Modelagem de Banco de Dados.</p>
+  </header>
+  <main>
+    <nav aria-label="Entidades do dicionário">
+      <strong>Navegação pelas entidades</strong>
+      <ul>
+        <li><a href="#automacao">AUTOMACAO</a></li><li><a href="#execucao">EXECUCAO</a></li><li><a href="#contrato">CONTRATO</a></li>
+        <li><a href="#evento">EVENTO_EXECUCAO</a></li><li><a href="#lote">LOTE_IMPORTACAO</a></li>
+        <li><a href="#instancia">INSTANCIA_IMPORTACAO</a></li><li><a href="#contrato-lote">CONTRATO_LOTE_IMPORTACAO</a></li>
+      </ul>
+    </nav>
+    <aside class="notice">
+      <strong>Escopo e privacidade</strong>
+      <p>O dicionário descreve 7 entidades e 66 atributos do recorte acadêmico. Não apresenta valores reais de clientes ou contratos. Exemplos futuros deverão ser fictícios e coerentes com o processo observado.</p>
+      <div class="legend"><span class="tag">PK — chave primária</span><span class="tag">FK — chave estrangeira</span><span class="tag">UQ — unicidade</span><span class="tag">NULL — opcional</span></div>
+    </aside>
+
+    <section id="automacao"><div class="section-head"><h2>AUTOMACAO</h2><h3>Identifica o processo automatizado monitorado.</h3></div><div class="table-wrap"><table><thead><tr><th>Atributo</th><th>Descrição</th><th>Regra de negócio associada</th></tr></thead><tbody>
+      <tr><td><code>id_automacao</code></td><td>Identificador da automação.</td><td>PK obrigatória.</td></tr>
+      <tr><td><code>nome</code></td><td>Nome único do processo automatizado.</td><td>Obrigatório e único.</td></tr>
+      <tr><td><code>descricao</code></td><td>Resumo funcional do processo.</td><td>Opcional.</td></tr>
+      <tr><td><code>ativo</code></td><td>Indica se a automação está habilitada.</td><td>Obrigatório; padrão verdadeiro.</td></tr>
+    </tbody></table></div></section>
+
+    <section id="execucao"><div class="section-head"><h2>EXECUCAO</h2><h3>Representa um ciclo ou fila processada.</h3></div><div class="table-wrap"><table><thead><tr><th>Atributo</th><th>Descrição</th><th>Regra de negócio associada</th></tr></thead><tbody>
+      <tr><td><code>id_execucao</code></td><td>Identificador da execução.</td><td>PK obrigatória.</td></tr>
+      <tr><td><code>id_automacao</code></td><td>Automação responsável pelo ciclo.</td><td>FK obrigatória para <code>AUTOMACAO</code>.</td></tr>
+      <tr><td><code>criado_em</code></td><td>Momento da criação do registro.</td><td>Obrigatório.</td></tr>
+      <tr><td><code>iniciado_em</code></td><td>Início efetivo do processamento.</td><td>Opcional enquanto não iniciada.</td></tr>
+      <tr><td><code>finalizado_em</code></td><td>Término efetivo do ciclo.</td><td>Opcional enquanto não encerrada.</td></tr>
+      <tr><td><code>status</code></td><td>Situação geral da execução.</td><td><code>RODANDO</code>, <code>PAUSADA</code>, <code>FINALIZADA</code>, <code>ENCERRADA</code> ou <code>ERRO</code>.</td></tr>
+      <tr><td><code>total_contratos</code></td><td>Quantidade total da fila.</td><td>Obrigatório; padrão zero.</td></tr>
+      <tr><td><code>contratos_sucesso</code></td><td>Quantidade concluída com sucesso.</td><td>Obrigatório; padrão zero.</td></tr>
+      <tr><td><code>contratos_erro</code></td><td>Quantidade concluída com falha.</td><td>Obrigatório; padrão zero.</td></tr>
+      <tr><td><code>qtd_workers</code></td><td>Quantidade de workers vinculados.</td><td>Atributo derivado dos registros operacionais.</td></tr>
+      <tr><td><code>duracao_segundos</code></td><td>Duração total do ciclo.</td><td>Calculada após início e fim.</td></tr>
+      <tr><td><code>nome_execucao</code></td><td>Nome legível do ciclo.</td><td>Opcional.</td></tr>
+      <tr><td><code>tipo_consulta</code></td><td>Fila ou modo de consulta.</td><td>Deve corresponder a uma seleção operacional aceita.</td></tr>
+      <tr><td><code>horario_agendado</code></td><td>Horário previsto para início.</td><td>Opcional em consulta manual.</td></tr>
+      <tr><td><code>mensagem_erro</code></td><td>Motivo técnico consolidado.</td><td>Preenchido quando houver interrupção geral.</td></tr>
+    </tbody></table></div></section>
+
+    <section id="contrato"><div class="section-head"><h2>CONTRATO</h2><h3>Representa a unidade processada dentro de uma execução.</h3></div><div class="table-wrap"><table><thead><tr><th>Atributo</th><th>Descrição</th><th>Regra de negócio associada</th></tr></thead><tbody>
+      <tr><td><code>id_contrato</code></td><td>Identificador interno do contrato monitorado.</td><td>PK obrigatória.</td></tr>
+      <tr><td><code>id_execucao</code></td><td>Execução da qual o item participa.</td><td>FK obrigatória; compõe a unicidade.</td></tr>
+      <tr><td><code>id_contrato_origem</code></td><td>Identificador técnico no banco de origem.</td><td>Opcional.</td></tr>
+      <tr><td><code>numero_contrato</code></td><td>Número do contrato consultado.</td><td>Obrigatório; único dentro da execução.</td></tr>
+      <tr><td><code>status</code></td><td>Estado do processamento.</td><td><code>PENDENTE</code>, <code>PROCESSANDO</code>, <code>SUCESSO</code> ou <code>ERRO</code>.</td></tr>
+      <tr><td><code>worker_atual</code></td><td>Worker que reservou ou processou o item.</td><td>Opcional; não transforma worker em entidade acadêmica.</td></tr>
+      <tr><td><code>iniciado_em</code></td><td>Início da tentativa.</td><td>Opcional antes da reserva.</td></tr>
+      <tr><td><code>finalizado_em</code></td><td>Término da tentativa.</td><td>Opcional enquanto não concluída.</td></tr>
+      <tr><td><code>duracao_segundos</code></td><td>Duração individual.</td><td>Calculada após início e fim.</td></tr>
+      <tr><td><code>qtd_parcelas</code></td><td>Quantidade de parcelas coletadas.</td><td>Obrigatório; padrão zero.</td></tr>
+      <tr><td><code>qtd_ocorrencias</code></td><td>Quantidade de ocorrências coletadas.</td><td>Obrigatório; padrão zero.</td></tr>
+      <tr><td><code>arquivo_saida</code></td><td>Referência ao resultado local autorizado.</td><td>Opcional; não deve expor dado sensível no GitHub.</td></tr>
+      <tr><td><code>mensagem_erro</code></td><td>Erro final do contrato.</td><td>Preenchido quando o item falhar.</td></tr>
+    </tbody></table></div></section>
+
+    <section id="evento"><div class="section-head"><h2>EVENTO_EXECUCAO</h2><h3>Representa a trilha temporal e operacional da execução.</h3></div><div class="table-wrap"><table><thead><tr><th>Atributo</th><th>Descrição</th><th>Regra de negócio associada</th></tr></thead><tbody>
+      <tr><td><code>id_evento</code></td><td>Identificador do evento.</td><td>PK obrigatória.</td></tr>
+      <tr><td><code>id_execucao</code></td><td>Execução que originou o evento.</td><td>FK obrigatória.</td></tr>
+      <tr><td><code>id_contrato</code></td><td>Contrato relacionado ao fato.</td><td>FK opcional; nulo para eventos gerais.</td></tr>
+      <tr><td><code>worker_label</code></td><td>Identificador operacional do worker.</td><td>Opcional.</td></tr>
+      <tr><td><code>numero_contrato</code></td><td>Número redundante para leitura histórica.</td><td>Opcional; não substitui a FK.</td></tr>
+      <tr><td><code>tipo_evento</code></td><td>Código do fato registrado.</td><td>Obrigatório e controlado.</td></tr>
+      <tr><td><code>mensagem</code></td><td>Contexto legível do evento.</td><td>Opcional.</td></tr>
+      <tr><td><code>criado_em</code></td><td>Momento imutável do evento.</td><td>Obrigatório.</td></tr>
+    </tbody></table></div></section>
+
+    <section id="lote"><div class="section-head"><h2>LOTE_IMPORTACAO</h2><h3>Representa o envio agrupado ao CSLOG.</h3></div><div class="table-wrap"><table><thead><tr><th>Atributo</th><th>Descrição</th><th>Regra de negócio associada</th></tr></thead><tbody>
+      <tr><td><code>id_lote</code></td><td>Identificador do lote.</td><td>PK obrigatória.</td></tr>
+      <tr><td><code>criado_em</code></td><td>Momento de criação.</td><td>Obrigatório.</td></tr>
+      <tr><td><code>atualizado_em</code></td><td>Última atualização do estado.</td><td>Obrigatório.</td></tr>
+      <tr><td><code>finalizado_em</code></td><td>Conclusão do lote.</td><td>Opcional enquanto em andamento.</td></tr>
+      <tr><td><code>arquivo_importacao</code></td><td>Referência ao CSV/ZIP enviado.</td><td>Opcional antes da geração.</td></tr>
+      <tr><td><code>ticket_base</code></td><td>Ticket principal retornado.</td><td>Obrigatório após o envio aceito.</td></tr>
+      <tr><td><code>qtd_instancias</code></td><td>Quantidade esperada de tickets.</td><td>Obrigatório; mínimo um após envio aceito.</td></tr>
+      <tr><td><code>total_contratos</code></td><td>Quantidade de contratos distintos.</td><td>Obrigatório; mínimo um em lote efetivo.</td></tr>
+      <tr><td><code>total_linhas</code></td><td>Quantidade de linhas enviadas.</td><td>Obrigatório.</td></tr>
+      <tr><td><code>status</code></td><td>Estado consolidado do lote.</td><td><code>PROCESSANDO</code>, <code>CONCLUIDO</code> ou <code>ERRO</code>.</td></tr>
+      <tr><td><code>mensagem_erro</code></td><td>Falha consolidada do lote.</td><td>Preenchida quando houver erro.</td></tr>
+    </tbody></table></div></section>
+
+    <section id="instancia"><div class="section-head"><h2>INSTANCIA_IMPORTACAO</h2><h3>Representa o acompanhamento individual de cada ticket.</h3></div><div class="table-wrap"><table><thead><tr><th>Atributo</th><th>Descrição</th><th>Regra de negócio associada</th></tr></thead><tbody>
+      <tr><td><code>id_instancia</code></td><td>Identificador da instância.</td><td>PK obrigatória.</td></tr>
+      <tr><td><code>id_lote</code></td><td>Lote ao qual a instância pertence.</td><td>FK obrigatória.</td></tr>
+      <tr><td><code>numero_instancia</code></td><td>Ordem sequencial dentro do lote.</td><td>Única dentro do lote.</td></tr>
+      <tr><td><code>ticket</code></td><td>Protocolo devolvido pelo CSLOG.</td><td>Único dentro do lote.</td></tr>
+      <tr><td><code>status</code></td><td>Estado textual do acompanhamento.</td><td>Obrigatório; inicia em <code>Aguardando</code>.</td></tr>
+      <tr><td><code>status_codigo</code></td><td>Código numérico retornado.</td><td>Opcional.</td></tr>
+      <tr><td><code>informacao</code></td><td>Mensagem informativa do serviço.</td><td>Opcional.</td></tr>
+      <tr><td><code>mensagem_erro</code></td><td>Falha específica da instância.</td><td>Opcional.</td></tr>
+      <tr><td><code>atualizado_em</code></td><td>Momento da última consulta.</td><td>Obrigatório.</td></tr>
+      <tr><td><code>finalizado_em</code></td><td>Momento da conclusão.</td><td>Opcional enquanto não finalizada.</td></tr>
+    </tbody></table></div></section>
+
+    <section id="contrato-lote"><div class="section-head"><h2>CONTRATO_LOTE_IMPORTACAO</h2><h3>Representa a associação entre contratos e lotes.</h3></div><div class="table-wrap"><table><thead><tr><th>Atributo</th><th>Descrição</th><th>Regra de negócio associada</th></tr></thead><tbody>
+      <tr><td><code>id_contrato_lote</code></td><td>Identificador da associação.</td><td>PK obrigatória.</td></tr>
+      <tr><td><code>id_contrato</code></td><td>Contrato participante.</td><td>FK obrigatória; compõe a unicidade.</td></tr>
+      <tr><td><code>id_lote</code></td><td>Lote participante.</td><td>FK obrigatória; compõe a unicidade.</td></tr>
+      <tr><td><code>status_importacao</code></td><td>Situação do contrato no lote.</td><td><code>PENDENTE</code>, <code>RESERVADO</code>, <code>IMPORTADO</code> ou <code>ERRO</code>.</td></tr>
+      <tr><td><code>importado_em</code></td><td>Momento da confirmação no CSLOG.</td><td>Opcional até a importação.</td></tr>
+    </tbody></table></div></section>
+  </main>
+  <footer>Universidade Cidade de São Paulo — Ciência da Computação — Modelagem de Banco de Dados — 2026</footer>
+</body>
+</html>

@@ -2,3 +2,5 @@
 **/.DS_Store
 *.svg
 *.py
+!render_der_conceitual_qore.py
+!gerar_dicionario_qore.py

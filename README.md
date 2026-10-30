@@ -20,32 +20,37 @@
 
 # Título
 
-## Modelagem de Banco de Dados para Monitoramento da Automação Accenture C6 na QORE Tecnologia
+## Modelagem de Banco de Dados para Gestão do Ciclo de Serviços e Automações da QORE Tecnologia
 
 ## Introdução
 
 ### Problema
 
-A operação estudada consulta contratos da base C6 no Portal C6 Auto, interpreta parcelas e ocorrências, aplica regras de classificação e envia ao CSLOG apenas mudanças relevantes. Sem controle estruturado, o trabalho fica sujeito a consulta manual contrato por contrato, duplicidade de movimentos, perda do ponto de retomada, dificuldade de identificar falhas e ausência de rastreabilidade entre consulta, contrato e lote importado.
+A QORE Tecnologia atende diferentes clientes e mantém mais de 20 projetos ativos. O ciclo de um serviço começa no cadastro do cliente e na abertura de um chamado com a necessidade, passa por análise, reunião, definição do escopo, proposta, contratação, abertura do projeto, desenvolvimento e entrega, e termina com o aceite e a finalização formal do projeto. Com aproximadamente 7 clientes ativos e mais de 100 chamados mensais, manter essas informações separadas dificulta rastrear a origem da demanda, as decisões tomadas, os responsáveis, a situação do projeto e o resultado entregue.
+
+Dentro desse ciclo, a automação Accenture C6 é um caso concreto de projeto técnico: consulta contratos no Portal C6 Auto, interpreta parcelas e ocorrências, aplica regras de classificação e envia ao CSLOG apenas mudanças relevantes. Sem controle estruturado, esse subprocesso também fica sujeito a duplicidade de movimentos, perda do ponto de retomada, dificuldade de identificar falhas e ausência de rastreabilidade entre execução, contrato processado e lote importado.
 
 ### Objetivo geral
 
-Modelar conceitualmente um banco de dados capaz de registrar e acompanhar a execução da automação Accenture C6, seus contratos, eventos operacionais e o ciclo de importação das atualizações destinadas ao CSLOG.
+Modelar conceitualmente um banco de dados capaz de registrar e acompanhar o ciclo completo dos serviços da QORE Tecnologia, desde o cadastro do cliente até a finalização do projeto, mantendo a automação Accenture C6 como um subsistema técnico ligado ao projeto, às execuções, aos contratos processados e às importações destinadas ao CSLOG.
 
 ### Objetivos específicos
 
-- compreender o processo real por meio de pesquisa de campo, código-fonte e documentação operacional;
-- identificar requisitos funcionais, requisitos não funcionais e regras de negócio;
+- representar o cadastro de clientes e a abertura de chamados ou solicitações;
+- acompanhar análise, reunião, escopo, proposta, contratação e abertura do projeto;
+- registrar responsáveis, alocações, desenvolvimento, entrega, aceite e finalização do projeto;
+- manter o suporte ligado ao cliente, ao contrato e ao histórico do projeto;
+- preservar a rastreabilidade técnica da automação Accenture C6 entre execução, contrato processado, evento e lote importado;
+- identificar requisitos funcionais, requisitos não funcionais e regras de negócio do ciclo organizacional e do subsistema técnico;
 - reconhecer entidades, atributos, relacionamentos e cardinalidades;
-- manter rastreabilidade entre execução, contrato, evento e lote importado;
-- representar o modelo em um Diagrama Entidade-Relacionamento;
+- representar o modelo em um Diagrama Entidade-Relacionamento na notação exigida;
 - justificar as decisões de inclusão, exclusão e abstração adotadas.
 
 ### Delimitação
 
-O modelo representa o **monitoramento da consulta de contratos e o acompanhamento da importação no CSLOG**. Ele não modela o domínio financeiro completo do C6, o cadastro de clientes, a composição detalhada de parcelas nem o conteúdo de cada linha enviada ao CRM. `PARCELA`, `OCORRENCIA`, `WORKER`, `PROCESSAMENTO_CONTRATO` e `MOVIMENTO_CSLOG` foram avaliados, mas ficaram fora do recorte final pelas razões apresentadas na justificativa técnica.
+O modelo representa o ciclo de serviços da QORE Tecnologia **desde o cadastro do cliente até a finalização formal do projeto**. O suporte pode ocorrer durante o desenvolvimento ou depois da entrega, sempre preservando o vínculo com o cliente, o contrato e o projeto histórico. A automação Accenture C6 integra esse ciclo como solução desenvolvida em um projeto e mantém seu detalhamento operacional de execução, eventos, contratos processados e importações.
 
-A Entrega 1 permanece centrada no **modelo conceitual solicitado pelo professor**. Para explicar a origem e a integração dos dados com maior precisão, o trabalho inclui também um diagrama de arquitetura e um modelo lógico preliminar complementar. Esses artefatos aprofundam a análise, mas não substituem o DER conceitual avaliado.
+O banco acadêmico não reproduz dados sigilosos dos clientes, valores comerciais reais, credenciais, respostas brutas do portal nem todo o conteúdo de cada linha enviada ao CRM. Processos de faturamento, compras, fornecedores, licenças e infraestrutura ainda dependem de confirmação específica da organização antes de serem apresentados como fatos. `PARCELA`, `OCORRENCIA`, `WORKER` e `MOVIMENTO_CSLOG` continuam avaliados como detalhes técnicos do subsistema, cuja permanência ou exclusão será justificada no modelo conceitual revisado.
 
 ---
 
@@ -59,21 +64,28 @@ A organização escolhida foi a **QORE Tecnologia**, empresa privada brasileira 
 
 #### Contexto e porte
 
-A QORE está sediada em São Caetano do Sul, São Paulo. A página institucional da empresa no LinkedIn informa porte de **11 a 50 funcionários**. A operação analisada envolve desenvolvimento, liderança técnica, automação, integração de sistemas, monitoramento e tratamento de dados operacionais.
+A QORE está sediada em São Caetano do Sul, São Paulo, e possui aproximadamente **50 funcionários**. No momento do levantamento, mantém aproximadamente **7 clientes ativos**, **mais de 20 projetos ativos** e recebe **mais de 100 chamados por mês**. A operação envolve atendimento ao cliente, análise de necessidades, elaboração de escopo e proposta, contratação, gestão de projetos, desenvolvimento, entrega e suporte, além de automação, integração de sistemas, monitoramento e tratamento de dados operacionais.
 
 No processo Accenture C6, a automação é configurada para trabalhar com um Terminal 0 coordenador e até 51 workers de processamento. As execuções ocorrem em janelas recorrentes durante a semana e o fim de semana, processando filas de contratos e lotes de importação com múltiplos tickets.
 
 #### Problemas e necessidades identificados
 
-O processo precisa resolver cinco dificuldades operacionais principais:
+Os problemas foram codificados para permitir rastreabilidade posterior entre necessidade, modelo de dados e consultas gerenciais:
 
-1. consultar grande quantidade de contratos sem depender de leitura manual individual;
-2. aplicar a mesma interpretação para ocorrências, parcelas e situações do portal;
-3. evitar que o mesmo contrato ou movimento seja processado mais de uma vez;
-4. preservar o progresso quando uma execução é pausada ou interrompida;
-5. acompanhar o lote até a conclusão de todos os tickets gerados pelo CSLOG.
+| ID | Problema ou necessidade |
+|---|---|
+| P01 | As informações do cliente, do chamado inicial e do projeto precisam permanecer vinculadas durante todo o ciclo do serviço. |
+| P02 | A organização precisa rastrear a evolução da necessidade desde a análise e a reunião até o escopo, a proposta e a contratação. |
+| P03 | Com mais de 20 projetos ativos, é necessário acompanhar situação, responsáveis, equipe, desenvolvimento, entrega, aceite e finalização. |
+| P04 | Com mais de 100 chamados mensais, é necessário identificar cliente, tipo, prioridade, situação, responsável, prazo e solução de cada atendimento. |
+| P05 | As entregas e o aceite do cliente precisam ser registrados para que a finalização do projeto seja formal e auditável. |
+| P06 | Projetos que produzem automações precisam ligar o contexto organizacional às execuções, aos contratos processados, aos eventos e às importações técnicas. |
+| P07 | A automação Accenture C6 precisa consultar e classificar grande quantidade de contratos sem duplicar reservas ou movimentos. |
+| P08 | Uma execução interrompida precisa preservar concluídos, retomar pendentes e manter o histórico das falhas. |
+| P09 | Um lote de importação precisa ser acompanhado até a conclusão de todos os tickets devolvidos pelo CSLOG. |
+| P10 | Dados de clientes, contratos, credenciais e respostas operacionais precisam permanecer protegidos e acessíveis somente a pessoas autorizadas. |
 
-A necessidade central não é apenas armazenar resultados finais. A organização precisa saber **qual automação executou, quando executou, quais contratos participaram, o que ocorreu durante o processamento e em qual lote cada contrato foi importado**.
+A necessidade central passa a ser a rastreabilidade completa: **quem é o cliente, qual necessidade originou o serviço, o que foi acordado, qual projeto foi aberto, quem participou, o que foi entregue, quando o projeto foi finalizado e, nos projetos com automação, como cada execução técnica se comportou**.
 
 #### Origem da solicitação e responsabilidades
 
@@ -93,7 +105,7 @@ O trabalho não afirma vínculo contratual direto da Accenture com a QORE. No re
 
 #### Justificativa da escolha
 
-A QORE foi escolhida porque é uma organização real, acessível ao grupo e possui um processo com complexidade adequada à disciplina. O caso apresenta múltiplas entidades, regras de seleção, concorrência entre workers, estados de execução, tratamento de erros, relacionamento muitos-para-muitos e integração com sistema externo. Ao mesmo tempo, o recorte pode ser delimitado sem tentar modelar todo o domínio financeiro ou todos os sistemas da operação.
+A QORE foi escolhida porque é uma organização real, acessível ao grupo e possui um ciclo de serviços com complexidade adequada à disciplina. O caso reúne clientes, chamados, reuniões, escopos, propostas, contratos, projetos, funcionários, entregas e suporte. A automação Accenture C6 acrescenta um caso técnico concreto com concorrência entre workers, estados de execução, tratamento de erros, relacionamento muitos-para-muitos e integração com sistema externo. Assim, o modelo pode representar tanto a gestão organizacional quanto a rastreabilidade operacional de uma solução entregue.
 
 #### Contexto do caso e termos utilizados
 
@@ -107,11 +119,15 @@ A QORE foi escolhida porque é uma organização real, acessível ao grupo e pos
 
 #### Origem e linhagem dos dados
 
-![Origem, responsabilidade e arquitetura dos dados](ORIGEM_E_ARQUITETURA_DADOS.png)
+![Origem, responsabilidade e arquitetura dos dados](ORIGEM_E_ARQUITETURA_DADOS_QORE.png)
 
 | Etapa | Origem | Dados utilizados | Transformação ou controle | Destino |
 |---|---|---|---|---|
-| Formação da fila | Banco/base operacional de origem | Identificadores de contratos elegíveis e critérios da fila | Prioridade, fase, situação e exclusão entre filas | `EXECUCAO` e `CONTRATO` no SQLite |
+| Atendimento | Cliente e equipe QORE | Cadastro, solicitante, necessidade, prioridade, prazo e responsáveis | Qualificação, análise e registro das decisões | `CLIENTE`, `CHAMADO` e `REUNIAO` |
+| Comercialização | Chamado e reunião | Requisitos, entregas, limites, condições e decisão do cliente | Versionamento do escopo, emissão da proposta e formalização | `ESCOPO`, `PROPOSTA` e `CONTRATO_SERVICO` |
+| Execução do serviço | Contrato e equipe QORE | Objetivo, planejamento, participantes, progresso e artefatos | Abertura, alocação, desenvolvimento e acompanhamento | `PROJETO`, `FUNCIONARIO` e `ALOCACAO_PROJETO` |
+| Entrega, finalização e suporte | Projeto e cliente | Versão, evidência, avaliação, pendências e solução | Aceite, ressalva ou rejeição; encerramento e atendimento posterior | `ENTREGA`, `PROJETO` e `CHAMADO` |
+| Formação da fila | Banco/base operacional de origem | Identificadores de contratos elegíveis e critérios da fila | Prioridade, fase, situação e exclusão entre filas | `EXECUCAO` e `CONTRATO_PROCESSADO` no SQLite |
 | Consulta | Portal C6 Auto | Contrato, parcelas, ocorrências, pagamentos, fases e situações | Autenticação, validação da resposta e normalização | Contexto operacional do contrato |
 | Classificação | Dados normalizados da consulta | Estados e ocorrências associados às parcelas | Regras De/Para e identificação de mudança funcional | Resultado do contrato e eventos de auditoria |
 | Persistência | Automação QORE | Estados, tempos, contagens, mensagens e decisões | Unicidade, reserva atômica, heartbeat e retomada | SQLite operacional |
@@ -136,11 +152,46 @@ Os dados operacionais são originados nos sistemas externos; o banco proposto re
 
 > A fotografia é utilizada exclusivamente como evidência acadêmica da empresa consultada e das pessoas que participaram do levantamento.
 
+#### Correções realizadas a partir da avaliação da Entrega 1
+
+| Apontamento da correção | O que mudou no trabalho | Por quê |
+|---|---|---|
+| Os processos cobriam somente 30% do ciclo organizacional. | O escopo foi ampliado do cadastro do cliente até a finalização do projeto, incluindo chamado, análise, reunião, escopo, proposta, contratação, projeto, equipe, entrega, aceite e suporte. | A automação é um subsistema de um serviço prestado pela QORE e não representa sozinha os dados da organização. |
+| A contratação aparecia apenas como origem da automação. | O ciclo passou a registrar proposta, aprovação, contrato de serviço e abertura do projeto. | É necessário explicar como uma necessidade aceita se transforma em trabalho contratado. |
+| Atendimento e Control Desk estavam ausentes. | Chamados foram incorporados antes, durante e depois do projeto. | A organização recebe mais de 100 chamados mensais e precisa rastrear prioridade, responsável, situação e solução. |
+| Alocação de equipe e horas por projeto estava ausente. | O modelo passou a prever funcionário e alocação vinculados ao projeto. | Com mais de 20 projetos ativos, é necessário conhecer responsáveis e participantes de cada iniciativa. |
+| As regras de negócio cobriam apenas 63% do cenário esperado. | Foram preservadas as regras técnicas e adicionadas regras de cliente, chamado, proposta, contratação, projeto, entrega, aceite, suporte e proteção de dados. | As restrições precisam cobrir o ciclo organizacional, não somente a execução da automação. |
+| O dicionário de dados não atendia ao formato completo. | Sua reconstrução foi definida para incluir atributos organizacionais, cardinalidades, domínios, convenções, integridade, acesso e LGPD. | O documento anterior descrevia somente sete entidades técnicas e três aspectos por atributo. |
+| O DER usava caixas e setas, cardinalidade incompleta em um dos lados e não continha entidades do negócio. | O DER foi refeito na notação do brModelo, com participações mínima e máxima dos dois lados e entidades organizacionais conectadas ao subsistema técnico. | A notação e o escopo anteriores não representavam o ciclo completo solicitado. |
+| `CLIENTE`, `CONTRATO/PROJETO` e `FUNCIONARIO` estavam ausentes. | Essas entidades passam a integrar o núcleo obrigatório do modelo revisado. | Elas possuem identidade e ciclo de vida próprios e sustentam o fluxo confirmado pela organização. |
+| `CHAMADO/SOLICITACAO` e registro de entrega eram ausentes. | Chamado, entrega e aceite foram incorporados ao ciclo. | O início, o resultado e a finalização do projeto precisam ser comprováveis. |
+| Faturamento, fornecedores, licenças e infraestrutura não estavam documentados. | Permanecem identificados como pontos de confirmação antes de integrar o modelo como fatos. | O trabalho não deve inventar processos, regras ou dados que ainda não foram confirmados pela organização. |
+
 ---
 
 ### Processos de Negócio
 
-#### Principais processos mapeados
+#### Ciclo organizacional dos serviços
+
+![Fluxo completo do ciclo de serviços da QORE](FLUXO_CICLO_SERVICOS_QORE.png)
+
+| Etapa | Entrada e dados envolvidos | Atividades principais | Saída |
+|---|---|---|---|
+| Cadastro do cliente | Nome empresarial, identificação, contatos e situação | Registrar e manter os dados necessários ao relacionamento | Cliente ativo e identificável |
+| Abertura do chamado | Cliente, solicitante, descrição, tipo, prioridade, data e anexos autorizados | Registrar a necessidade e encaminhar para análise | Chamado aberto e rastreável |
+| Análise da necessidade | Chamado, contexto, restrições e resultado esperado | Avaliar viabilidade, esclarecer dúvidas e identificar participantes | Necessidade qualificada |
+| Agendamento e reunião | Cliente, participantes, data, horário, pauta e canal | Discutir a necessidade e registrar decisões e pendências | Reunião realizada e informações para o escopo |
+| Definição do escopo | Requisitos, entregas, limites, premissas, prazo e responsáveis | Consolidar o que será realizado e o que fica fora | Escopo versionado para avaliação |
+| Elaboração da proposta | Escopo, prazo, condições e validade | Preparar, enviar e acompanhar aprovação ou rejeição | Proposta com situação registrada |
+| Contratação | Proposta aprovada, cliente, objeto, vigência e responsáveis | Formalizar a prestação do serviço | Contrato de serviço válido |
+| Abertura do projeto | Contrato, nome, objetivo, datas, situação e responsável | Criar o projeto e organizar sua execução | Projeto aberto e ligado ao cliente e ao contrato |
+| Alocação da equipe | Projeto, funcionário, função, período e dedicação | Designar responsáveis e participantes | Equipe do projeto identificada |
+| Desenvolvimento | Projeto, tarefas, requisitos, decisões e artefatos | Implementar, acompanhar progresso e registrar ocorrências | Solução pronta para entrega |
+| Entrega e aceite | Projeto, versão, data, responsável, evidência e avaliação do cliente | Disponibilizar o resultado e registrar aceite, ressalva ou rejeição | Entrega formalmente avaliada |
+| Finalização do projeto | Entregas aceitas, pendências, data, situação e responsável | Conferir conclusão, registrar resultado ou cancelamento e encerrar o ciclo | Projeto concluído ou cancelado com histórico |
+| Suporte | Cliente, projeto, entrega, chamado, prioridade e solução | Atender dúvida, incidente, correção ou melhoria | Atendimento resolvido ou encaminhado |
+
+#### Subprocessos técnicos da automação Accenture C6
 
 | Processo | Entrada | Atividades principais | Saída |
 |---|---|---|---|
@@ -148,6 +199,10 @@ Os dados operacionais são originados nos sistemas externos; o banco proposto re
 | Classificação e persistência | Parcelas, ocorrências, pagamentos, fases e situações | Normalização, associação ocorrência-parcela, De/Para e deduplicação | Status operacional, auditoria e movimento elegível |
 | Importação no CSLOG | Movimentos pendentes e contratos associados | Reserva do lote, geração de CSV/ZIP, envio SFTP e consulta de tickets | Lote concluído ou erro recuperável |
 | Monitoramento e retomada | Estados persistidos, heartbeats e eventos | Cálculo de totais, detecção de worker inativo e retomada | Visibilidade operacional sem repetir concluídos |
+
+#### Processos típicos ainda sujeitos a confirmação
+
+Faturamento e recebimento, compras, fornecedores, licenças e infraestrutura foram apontados na correção como processos organizacionais prováveis. Eles não são apresentados como confirmados nesta revisão porque o levantamento disponível descreve o ciclo operacional do serviço, mas não informa como esses processos funcionam na QORE. Uma ampliação futura do escopo somente poderá incluir esses itens depois de confirmar como cada processo funciona na organização.
 
 #### Agendamento operacional confirmado
 
@@ -180,7 +235,9 @@ O fluxo diferencia falha de envio, acompanhamento ainda pendente e confirmação
 
 #### Integração entre os processos
 
-A consulta produz os dados necessários à classificação. A classificação aplica as regras De/Para e registra o histórico operacional. Somente mudanças novas e relevantes tornam-se elegíveis para importação. A importação agrupa os contratos em lotes, envia o arquivo e acompanha cada ticket. O monitoramento utiliza os registros de todas essas etapas para apresentar progresso e permitir retomada segura.
+O cadastro do cliente e o chamado iniciam o ciclo organizacional. A análise e a reunião produzem informações para o escopo; o escopo fundamenta a proposta; a proposta aprovada fundamenta o contrato; e o contrato permite abrir o projeto. O projeto reúne equipe, desenvolvimento, entregas, aceite e finalização. Chamados de suporte podem ocorrer durante ou depois da entrega, sempre preservando o vínculo histórico.
+
+Nos projetos que produzem automações, a automação fica vinculada ao projeto. No caso Accenture C6, a consulta produz os dados necessários à classificação; a classificação aplica as regras De/Para e registra o histórico operacional; somente mudanças novas e relevantes tornam-se elegíveis para importação; e a importação acompanha os tickets até o estado terminal. Assim, o processo técnico permanece rastreável até o cliente, o contrato e o projeto que lhe deram origem.
 
 ---
 
@@ -188,19 +245,25 @@ A consulta produz os dados necessários à classificação. A classificação ap
 
 #### Visão geral
 
-Propõe-se uma solução de monitoramento e persistência centrada em **rastreabilidade ponta a ponta**. O banco não deve funcionar apenas como um depósito de resultados: ele deve representar o ciclo completo desde o disparo da automação até a confirmação da importação no CSLOG. Dessa forma, cada execução pode responder objetivamente às perguntas: qual processo foi iniciado, quais contratos entraram na fila, quem os processou, quais eventos ocorreram, o que foi importado, quais tickets foram gerados e onde aconteceu uma eventual falha.
+Propõe-se uma solução de gestão e persistência centrada em **rastreabilidade ponta a ponta**, desde o cadastro do cliente até a finalização do projeto. O banco não deve funcionar apenas como um depósito de resultados: ele deve explicar qual necessidade iniciou o atendimento, o que foi analisado, acordado e contratado, qual projeto foi aberto, quem participou, o que foi entregue, como o cliente avaliou a entrega e quando o projeto foi encerrado.
 
-A proposta mantém a automação existente como fonte do comportamento operacional e organiza os dados em sete entidades conceituais. Ela não substitui o Portal C6 Auto nem o CSLOG. Sua função é criar uma camada confiável de controle entre esses sistemas, reduzindo duplicidade, perda de progresso e dificuldade de auditoria.
+A automação Accenture C6 permanece como subsistema de um projeto. Ela não substitui o Portal C6 Auto nem o CSLOG: registra o comportamento operacional entre esses sistemas, reduzindo duplicidade, perda de progresso e dificuldade de auditoria. O novo núcleo organizacional ligará essas informações técnicas a cliente, chamado, proposta, contrato, projeto, equipe, entrega e aceite.
 
 #### Componentes lógicos da solução
 
 | Componente | Responsabilidade | Dados principais envolvidos |
 |---|---|---|
+| Gestão de clientes | Identificar a organização atendida e seus contatos autorizados. | `CLIENTE` |
+| Atendimento e levantamento | Registrar chamados, análises, reuniões e decisões. | `CHAMADO` e `REUNIAO` |
+| Comercialização do serviço | Controlar escopo, proposta, aprovação e contratação. | `ESCOPO`, `PROPOSTA` e `CONTRATO_SERVICO` |
+| Gestão de projetos | Abrir, acompanhar e finalizar projetos ligados ao cliente e ao contrato. | `PROJETO` |
+| Equipe | Relacionar funcionários, funções, períodos e responsabilidades aos projetos. | `FUNCIONARIO` e `ALOCACAO_PROJETO` |
+| Entrega e aceite | Registrar versões entregues, evidências, avaliação do cliente e encerramento. | `ENTREGA` |
 | Cadastro da automação | Identificar e descrever o processo monitorado. | `AUTOMACAO` |
 | Orquestração e agendamento | Abrir execuções nas janelas definidas, impedir sobreposição incompatível e aplicar horários-limite. | `EXECUCAO` |
-| Processamento de contratos | Selecionar, reservar, consultar, classificar e finalizar cada item da fila. | `CONTRATO` |
+| Processamento de contratos | Selecionar, reservar, consultar, classificar e finalizar cada item da fila. | `CONTRATO_PROCESSADO` |
 | Auditoria operacional | Registrar mudanças de estado, heartbeats, retomadas, erros e decisões relevantes. | `EVENTO_EXECUCAO` |
-| Gestão de importação | Agrupar contratos elegíveis, controlar o envio ao CSLOG e consolidar o resultado. | `LOTE_IMPORTACAO` e `CONTRATO_LOTE_IMPORTACAO` |
+| Gestão de importação | Agrupar contratos elegíveis, controlar o envio ao CSLOG e consolidar o resultado. | `LOTE_IMPORTACAO` e `PARTICIPACAO_LOTE` |
 | Acompanhamento externo | Registrar cada ticket devolvido pelo CSLOG até seu encerramento. | `INSTANCIA_IMPORTACAO` |
 | Monitoramento | Calcular indicadores a partir das entidades, sem criar uma entidade genérica e redundante de métricas. | Consultas sobre execução, contrato, evento e lote |
 
@@ -209,7 +272,7 @@ A proposta mantém a automação existente como fonte do comportamento operacion
 | Etapa | Entrada | Validação e regra aplicada | Persistência | Saída observável |
 |---|---|---|---|---|
 | 1. Disparo | Data, horário, tipo de consulta e configuração operacional | Verificar janela, ciclo anterior e ausência de execução incompatível | Criar `EXECUCAO` vinculada a `AUTOMACAO` | Execução identificada e auditável |
-| 2. Formação da fila | Contratos elegíveis no banco de origem | Aplicar prioridade, fase, situação e exclusão entre filas | Criar `CONTRATO` único dentro da execução | Total da fila e itens pendentes |
+| 2. Formação da fila | Contratos elegíveis no banco de origem | Aplicar prioridade, fase, situação e exclusão entre filas | Criar `CONTRATO_PROCESSADO` único dentro da execução | Total da fila e itens pendentes |
 | 3. Reserva | Contrato em `PENDENTE` e worker disponível | Reservar atomicamente somente um item por worker | Atualizar contrato para `PROCESSANDO` e registrar evento | Responsável e horário conhecidos |
 | 4. Consulta | Sessão autenticada e número do contrato | Validar retorno, parcelas, ocorrências e consistência mínima | Atualizar quantidades, tempos e contexto do contrato | Dados prontos para classificação |
 | 5. Classificação | Dados normalizados do portal | Aplicar associação ocorrência-parcela e regras De/Para | Registrar resultado e eventos relevantes | Sucesso, erro ou mudança elegível |
@@ -233,9 +296,9 @@ Os estados não são apenas rótulos de tela: eles determinam quais transições
 
 Para evitar inconsistências, a proposta combina regras do banco com transações da aplicação:
 
-1. `CONTRATO` deve ser único por `id_execucao + numero_contrato`;
+1. `CONTRATO_PROCESSADO` deve ser único por execução e número do contrato;
 2. a passagem de `PENDENTE` para `PROCESSANDO` deve ocorrer em transação atômica, impedindo dois workers de reservar o mesmo item;
-3. `CONTRATO_LOTE_IMPORTACAO` deve ser único por `id_contrato + id_lote`;
+3. `PARTICIPACAO_LOTE` deve ser única para a mesma combinação de contrato processado e lote;
 4. cada número de instância e cada ticket devem ser únicos dentro do lote;
 5. chaves estrangeiras devem impedir contratos, eventos, associações e instâncias órfãos;
 6. a seleção para importação deve comparar o conteúdo funcional já confirmado, impedindo o reenvio de uma atualização idêntica;
@@ -270,6 +333,12 @@ Os indicadores são derivados das entidades, evitando duplicação desnecessári
 
 | Indicador | Origem do cálculo | Finalidade |
 |---|---|---|
+| Chamados abertos por período | chamados agrupados por data, cliente, tipo e situação | Medir demanda e capacidade de atendimento |
+| Projetos ativos por responsável | projetos não finalizados e suas alocações | Distribuir responsabilidades e identificar concentração de trabalho |
+| Tempo entre chamado e abertura do projeto | diferença entre abertura do chamado e início do projeto | Avaliar o fluxo de análise e contratação |
+| Taxa de propostas aprovadas | propostas aprovadas ÷ propostas avaliadas | Avaliar conversão de oportunidades em projetos |
+| Tempo médio de projeto | diferença entre abertura e finalização | Acompanhar previsibilidade das entregas |
+| Taxa de entregas aceitas | entregas aceitas ÷ entregas avaliadas | Avaliar qualidade percebida e pendências |
 | Progresso da execução | contratos concluídos ÷ total de contratos | Acompanhar avanço da fila |
 | Taxa de sucesso | contratos com sucesso ÷ contratos finalizados | Avaliar estabilidade operacional |
 | Tempo médio por contrato | soma das durações ÷ contratos finalizados | Identificar degradação de processamento |
@@ -280,14 +349,18 @@ Os indicadores são derivados das entidades, evitando duplicação desnecessári
 
 #### Rastreabilidade entre problema e solução
 
-| Problema observado | Mecanismo proposto | Entidades que comprovam o resultado |
+| Problema observado | Mecanismo proposto | Entidades previstas para comprovar o resultado |
 |---|---|---|
-| Perda do ponto de retomada | Estados persistidos e retomada no mesmo ciclo | `EXECUCAO`, `CONTRATO` e `EVENTO_EXECUCAO` |
-| Contrato reservado mais de uma vez | Unicidade e reserva transacional | `CONTRATO` |
-| Falha sem contexto histórico | Eventos cronológicos vinculados à execução e, quando aplicável, ao contrato | `EVENTO_EXECUCAO` |
-| Reenvio de atualização idêntica | Seleção idempotente e associação explícita contrato-lote | `CONTRATO_LOTE_IMPORTACAO` |
-| Lote confirmado antes de todos os tickets | Acompanhamento individual e regra de conclusão conjunta | `LOTE_IMPORTACAO` e `INSTANCIA_IMPORTACAO` |
-| Métricas inconsistentes | Indicadores recalculáveis a partir dos registros detalhados | `EXECUCAO`, `CONTRATO`, `EVENTO_EXECUCAO` e `LOTE_IMPORTACAO` |
+| P01 — perda do vínculo entre cliente, chamado e projeto | Relacionamentos obrigatórios ao longo do ciclo | `CLIENTE`, `CHAMADO`, `CONTRATO_SERVICO` e `PROJETO` |
+| P02 — decisões comerciais sem rastreabilidade | Histórico de reunião, escopo, proposta e aprovação | `REUNIAO`, `ESCOPO` e `PROPOSTA` |
+| P03 — dificuldade de acompanhar projetos ativos | Estado, responsável, alocação, datas e encerramento | `PROJETO`, `FUNCIONARIO` e `ALOCACAO_PROJETO` |
+| P04 — volume de chamados sem controle | Tipo, prioridade, situação, responsável, prazo e solução | `CHAMADO` |
+| P05 — projeto encerrado sem evidência de aceite | Entrega e avaliação vinculadas à finalização | `ENTREGA` e `PROJETO` |
+| P06 — automação desconectada do contexto de negócio | Automação vinculada ao projeto que a originou | `PROJETO` e `AUTOMACAO` |
+| P07 — contrato processado mais de uma vez | Unicidade e reserva transacional | `CONTRATO_PROCESSADO` |
+| P08 — perda do ponto de retomada | Estados persistidos e retomada no mesmo ciclo | `EXECUCAO`, `CONTRATO_PROCESSADO` e `EVENTO_EXECUCAO` |
+| P09 — lote confirmado antes de todos os tickets | Acompanhamento individual e regra de conclusão conjunta | `LOTE_IMPORTACAO` e `INSTANCIA_IMPORTACAO` |
+| P10 — exposição de dados e credenciais | Minimização, sanitização e controle de acesso | Entidades com dados pessoais e trilha de acesso |
 
 #### Evolução planejada
 
@@ -307,6 +380,31 @@ A escolha evita introduzir uma arquitetura distribuída sem necessidade comprova
 ### Requisitos do Sistema
 
 #### Requisitos Funcionais
+
+Os códigos `RF01` a `RF18` foram preservados por pertencerem à Entrega 1. Os requisitos organizacionais acrescentados começam em `RF19`, evitando trocar a identidade dos requisitos técnicos já avaliados.
+
+##### Requisitos organizacionais acrescentados
+
+| ID | Requisito funcional |
+|---|---|
+| RF19 | O sistema deve permitir cadastrar cliente com nome empresarial, identificação, contatos autorizados, endereço, data de cadastro e situação. |
+| RF20 | O sistema deve permitir abrir chamado com cliente, solicitante, tipo, prioridade, descrição, data, situação e responsável. |
+| RF21 | O sistema deve registrar a análise da necessidade com contexto, restrições, viabilidade, dúvidas, decisão e responsável. |
+| RF22 | O sistema deve registrar reunião com cliente, participantes, data, horário, pauta, decisões e pendências. |
+| RF23 | O sistema deve registrar e versionar o escopo com requisitos, entregas, limites, premissas, prazo e responsável. |
+| RF24 | O sistema deve registrar proposta com escopo, data de envio, validade, situação e decisão do cliente. |
+| RF25 | O sistema deve registrar contrato de serviço associado ao cliente e à proposta aprovada, com objeto, vigência, situação e responsáveis. |
+| RF26 | O sistema deve abrir projeto associado ao contrato, registrando nome, objetivo, datas previstas, situação e responsável. |
+| RF27 | O sistema deve alocar funcionário ao projeto com função, período, dedicação e responsabilidade. |
+| RF28 | O sistema deve acompanhar o desenvolvimento do projeto por situação, datas, decisões, ocorrências e responsáveis. |
+| RF29 | O sistema deve registrar entrega com projeto, versão, descrição, data, responsável e evidência autorizada. |
+| RF30 | O sistema deve registrar o aceite, a ressalva ou a rejeição da entrega pelo cliente, incluindo data e observação. |
+| RF31 | O sistema deve finalizar projeto com data, situação final, responsável, entregas aceitas, pendências e motivo de cancelamento quando aplicável. |
+| RF32 | O sistema deve permitir chamados de suporte ligados ao cliente e, quando aplicável, ao contrato, ao projeto e à entrega. |
+| RF33 | O sistema deve vincular cada automação ao projeto em que foi desenvolvida ou mantida. |
+| RF34 | O sistema deve produzir indicadores de clientes, chamados, propostas, projetos, alocações, entregas e execuções técnicas. |
+
+##### Requisitos técnicos preservados
 
 | ID | Requisito funcional |
 |---|---|
@@ -341,6 +439,10 @@ A escolha evita introduzir uma arquitetura distribuída sem necessidade comprova
 | RNF06 | Capacidade: suportar a configuração operacional de 51 workers mais o Terminal 0 sem duplicar reservas. | Uma execução controlada deve registrar os 51 workers, seus heartbeats e zero contratos processados em duplicidade. |
 | RNF07 | Observabilidade: 100% das execuções devem exibir status, totais, horários e erros; inatividade deve ser detectada em até cinco minutos. | Os dados do portal/API devem conferir com o SQLite e todo worker inativo deve ser sinalizado dentro do limite. |
 | RNF08 | Consistência documental: 100% das mudanças de agenda, De/Para ou importação devem atualizar código, testes e documentação na mesma entrega. | O checklist da mudança deve apresentar os três artefatos atualizados e nenhuma divergência aberta. |
+| RNF09 | Rastreabilidade organizacional: 100% dos projetos devem estar ligados a cliente e contrato, e 100% dos contratos devem derivar de proposta aprovada. | Uma consulta de integridade deve retornar zero projetos sem cliente/contrato e zero contratos sem proposta aprovada. |
+| RNF10 | Auditabilidade: mudanças de situação de chamados, propostas, projetos, entregas e aceites devem preservar data e responsável. | Uma amostra de cada objeto deve permitir reconstruir sua sequência de estados sem sobrescrever o histórico necessário. |
+| RNF11 | Privacidade: dados pessoais e comerciais devem ser limitados à finalidade acadêmica e acessíveis somente por papéis autorizados. | O repositório deve conter apenas dados fictícios; a matriz de acesso deve negar operações incompatíveis com cada papel. |
+| RNF12 | Consistência de encerramento: nenhum projeto pode ser concluído sem ao menos uma entrega registrada e uma decisão de aceite, ressalva ou rejeição. | Uma consulta de auditoria deve retornar zero projetos concluídos sem entrega e decisão do cliente. |
 
 ---
 
@@ -369,19 +471,173 @@ A escolha evita introduzir uma arquitetura distribuída sem necessidade comprova
 
 #### Restrições organizacionais
 
-- contratos prioritários são excluídos das demais filas do mesmo ciclo;
-- o horário-limite deve pausar a execução sem apagar concluídos;
-- credenciais, tokens, cookies e perfis autenticados não podem ser publicados;
-- respostas brutas e dados identificáveis permanecem apenas no ambiente operacional autorizado;
-- a consulta dedicada de acordos não integra o recorte desta entrega;
-- a proposta acadêmica não representa uma migração aplicada ao SQLite de produção;
-- um lote efetivo deve possuir pelo menos um contrato e uma instância de acompanhamento.
+| ID | Regra de negócio organizacional |
+|---|---|
+| RN17 | Todo chamado deve pertencer a um cliente cadastrado e registrar solicitante, tipo, prioridade, situação e data de abertura. |
+| RN18 | Uma necessidade somente pode avançar para elaboração de escopo depois de analisada e possuir decisão ou pendências registradas. |
+| RN19 | Toda reunião deve identificar o cliente, os participantes, a data e as decisões relacionadas à necessidade. |
+| RN20 | Toda proposta deve estar vinculada a um escopo identificável e possuir validade e situação controladas. |
+| RN21 | Um contrato de serviço somente pode ser formalizado a partir de proposta aprovada pelo cliente. |
+| RN22 | Todo projeto deve pertencer a um cliente e a um contrato de serviço válido. |
+| RN23 | Todo projeto deve possuir um funcionário responsável e situação controlada. |
+| RN24 | A participação de um funcionário em um projeto deve ser registrada por alocação com função e período. |
+| RN25 | Toda entrega deve pertencer a um projeto e identificar versão, data e responsável. |
+| RN26 | Um projeto somente pode ser concluído depois que sua entrega tiver decisão de aceite, ressalva ou rejeição registrada. |
+| RN27 | Projeto cancelado deve preservar data, responsável e motivo do cancelamento; o registro histórico não deve ser apagado. |
+| RN28 | Chamado de suporte pode ocorrer durante ou depois da entrega e deve preservar vínculo com cliente e, quando aplicável, contrato, projeto e entrega. |
+| RN29 | Toda automação deve estar vinculada ao projeto em que foi desenvolvida ou mantida. |
+| RN30 | Credenciais, tokens, cookies e perfis autenticados não podem ser armazenados no repositório acadêmico ou em atributos de negócio. |
+| RN31 | Dados identificáveis de clientes e respostas brutas permanecem somente no ambiente operacional autorizado. |
+| RN32 | Acesso a dados de clientes deve respeitar a função do usuário e o princípio do menor privilégio. |
+
+As regras técnicas `RN01` a `RN16` continuam aplicáveis ao subsistema Accenture C6. Além delas, contratos prioritários são excluídos das demais filas do mesmo ciclo; o horário-limite deve pausar a execução sem apagar concluídos; a proposta acadêmica não representa uma migração aplicada ao SQLite de produção; e um lote efetivo deve possuir pelo menos um contrato e uma instância de acompanhamento após o envio aceito.
 
 ---
 
-### Dicionário de Dados Conceitual (Preliminar)
+### Atributos do Modelo Conceitual Revisado
 
-O dicionário usa o mesmo padrão para todas as entidades. Não são apresentados exemplos com dados reais de clientes ou contratos.
+Esta seção descreve os atributos necessários para compreender o modelo conceitual. Os identificadores são atributos conceituais; as chaves estrangeiras serão introduzidas somente no modelo lógico. O dicionário HTML completo, com tipos físicos, nulabilidade, unicidade, domínios, padrões, índices, papéis e LGPD, será reconstruído no Bloco C. Não são apresentados exemplos com dados reais de clientes ou contratos.
+
+#### Entidade: CLIENTE
+
+Representa a organização atendida pela QORE.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_cliente` | Identificador conceitual do cliente. | Identificador obrigatório. |
+| `nome_empresarial` | Nome utilizado no relacionamento comercial. | Obrigatório. |
+| `identificacao` | Identificação empresarial controlada. | Única quando informada. |
+| `contatos` | Meios de contato autorizados. | Uso limitado à finalidade do atendimento. |
+| `endereco` | Endereço empresarial. | Opcional conforme necessidade. |
+| `cadastrado_em` | Data do cadastro. | Obrigatória. |
+| `situacao` | Situação do relacionamento. | `ATIVO` ou `INATIVO`. |
+
+#### Entidade: CHAMADO
+
+Registra uma necessidade inicial ou um atendimento de suporte.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_chamado` | Identificador conceitual do chamado. | Identificador obrigatório. |
+| `solicitante` | Pessoa que apresentou a necessidade. | Obrigatória. |
+| `tipo` | Natureza do atendimento. | `SOLICITACAO`, `DUVIDA`, `INCIDENTE`, `CORRECAO`, `MELHORIA` ou `SUPORTE`. |
+| `prioridade` | Prioridade operacional. | Domínio controlado. |
+| `descricao` | Necessidade ou ocorrência informada. | Obrigatória. |
+| `aberto_em` | Data e hora de abertura. | Obrigatória. |
+| `prazo` | Prazo acordado, quando aplicável. | Opcional. |
+| `situacao` | Estado do chamado. | Domínio controlado. |
+| `solucao` | Resultado do atendimento. | Obrigatória no encerramento. |
+
+#### Entidade: REUNIAO
+
+Preserva o levantamento realizado com o cliente.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_reuniao` | Identificador conceitual da reunião. | Identificador obrigatório. |
+| `data_hora` | Momento agendado ou realizado. | Obrigatório. |
+| `participantes` | Participantes da QORE e do cliente. | Ao menos um participante de cada lado quando realizada. |
+| `pauta` | Assuntos previstos. | Obrigatória. |
+| `decisoes` | Confirmações obtidas. | Preservadas no histórico. |
+| `pendencias` | Itens que exigem retorno. | Opcional. |
+
+#### Entidade: ESCOPO
+
+Define o que será entregue e os limites do serviço.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_escopo` | Identificador conceitual do escopo. | Identificador obrigatório. |
+| `versao` | Número ou rótulo da versão. | Único dentro do chamado. |
+| `requisitos` | Necessidades incluídas. | Obrigatórios. |
+| `entregas_previstas` | Resultados esperados. | Obrigatórias. |
+| `limites` | Itens explicitamente não incluídos. | Obrigatórios quando houver exclusões. |
+| `premissas` | Condições consideradas. | Opcional. |
+| `prazo_estimado` | Previsão para execução. | Obrigatório para proposta. |
+| `situacao` | Estado de elaboração ou aprovação. | Domínio controlado. |
+
+#### Entidade: PROPOSTA
+
+Registra a oferta apresentada ao cliente a partir do escopo.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_proposta` | Identificador conceitual da proposta. | Identificador obrigatório. |
+| `enviada_em` | Data do envio. | Obrigatória quando enviada. |
+| `validade` | Data limite para decisão. | Obrigatória. |
+| `condicoes` | Condições comerciais não sigilosas necessárias ao modelo. | Dados reais não serão publicados. |
+| `situacao` | Estado da proposta. | `RASCUNHO`, `ENVIADA`, `APROVADA`, `REJEITADA` ou `EXPIRADA`. |
+| `decidida_em` | Data da decisão do cliente. | Obrigatória após aprovação ou rejeição. |
+
+#### Entidade: CONTRATO_SERVICO
+
+Formaliza a prestação do serviço aprovado.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_contrato_servico` | Identificador conceitual do contrato. | Identificador obrigatório. |
+| `objeto` | Objeto contratado. | Obrigatório. |
+| `inicio_vigencia` | Início da vigência. | Obrigatório. |
+| `fim_vigencia` | Término da vigência. | Opcional conforme modalidade. |
+| `situacao` | Estado do contrato. | Domínio controlado. |
+| `responsavel_cliente` | Responsável indicado pelo cliente. | Obrigatório. |
+| `responsavel_qore` | Responsável indicado pela QORE. | Obrigatório. |
+
+#### Entidade: PROJETO
+
+Organiza a execução do serviço contratado.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_projeto` | Identificador conceitual do projeto. | Identificador obrigatório. |
+| `nome` | Nome do projeto. | Obrigatório. |
+| `objetivo` | Resultado buscado. | Obrigatório. |
+| `inicio_previsto` | Previsão de início. | Obrigatória. |
+| `fim_previsto` | Previsão de término. | Obrigatória. |
+| `inicio_real` | Início efetivo. | Opcional antes do início. |
+| `fim_real` | Finalização efetiva. | Obrigatória quando concluído. |
+| `situacao` | Estado do projeto. | Domínio controlado. |
+| `motivo_cancelamento` | Motivo do cancelamento. | Obrigatório quando cancelado. |
+
+#### Entidade: FUNCIONARIO
+
+Representa uma pessoa da equipe da QORE que pode participar dos projetos.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_funcionario` | Identificador conceitual do funcionário. | Identificador obrigatório. |
+| `nome` | Nome do funcionário. | Obrigatório. |
+| `funcao` | Função organizacional. | Obrigatória. |
+| `contato_corporativo` | Contato profissional. | Uso restrito ao contexto organizacional. |
+| `situacao` | Situação do vínculo. | `ATIVO` ou `INATIVO`. |
+
+#### Entidade associativa: ALOCACAO_PROJETO
+
+Resolve a relação N:N entre funcionários e projetos.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `funcao_no_projeto` | Papel exercido no projeto. | Obrigatório. |
+| `inicio` | Início da participação. | Obrigatório. |
+| `fim` | Término da participação. | Opcional enquanto ativa. |
+| `dedicacao` | Dedicação acordada. | Domínio a definir no modelo lógico. |
+| `responsabilidade` | Responsabilidade principal. | Obrigatória. |
+
+#### Entidade: ENTREGA
+
+Registra o resultado disponibilizado ao cliente e sua avaliação.
+
+| Atributo | Descrição | Regra associada |
+|---|---|---|
+| `id_entrega` | Identificador conceitual da entrega. | Identificador obrigatório. |
+| `versao` | Versão do resultado entregue. | Única dentro do projeto. |
+| `descricao` | Conteúdo disponibilizado. | Obrigatória. |
+| `entregue_em` | Data da entrega. | Obrigatória. |
+| `responsavel` | Funcionário responsável. | Obrigatório. |
+| `evidencia` | Referência autorizada da entrega. | Não deve expor dados sigilosos. |
+| `decisao_cliente` | Avaliação recebida. | `ACEITA`, `ACEITA_COM_RESSALVA` ou `REJEITADA`. |
+| `decidida_em` | Data da decisão. | Obrigatória após avaliação. |
+| `observacao_cliente` | Ressalva ou justificativa. | Obrigatória em ressalva ou rejeição. |
 
 #### Entidade: AUTOMACAO
 
@@ -401,7 +657,6 @@ Representa um ciclo ou fila processada.
 | Atributo | Descrição | Regra de negócio associada |
 |---|---|---|
 | `id_execucao` | Identificador da execução. | Chave primária obrigatória. |
-| `id_automacao` | Automação responsável pelo ciclo. | FK obrigatória para `AUTOMACAO`. |
 | `criado_em` | Momento da criação do registro. | Obrigatório. |
 | `iniciado_em` | Início efetivo do processamento. | Opcional enquanto não iniciada. |
 | `finalizado_em` | Término efetivo do ciclo. | Opcional enquanto não encerrada. |
@@ -416,16 +671,15 @@ Representa um ciclo ou fila processada.
 | `horario_agendado` | Horário previsto para início. | Opcional em consulta manual. |
 | `mensagem_erro` | Motivo técnico consolidado. | Preenchido quando houver interrupção geral. |
 
-#### Entidade: CONTRATO
+#### Entidade: CONTRATO_PROCESSADO
 
-Representa a unidade processada dentro de uma execução.
+Representa a unidade técnica processada dentro de uma execução. O nome diferencia esse registro do contrato comercial de serviço.
 
 | Atributo | Descrição | Regra de negócio associada |
 |---|---|---|
-| `id_contrato` | Identificador interno do contrato monitorado. | Chave primária obrigatória. |
-| `id_execucao` | Execução da qual o item participa. | FK obrigatória; compõe a unicidade. |
+| `id_contrato_processado` | Identificador interno do contrato monitorado. | Chave primária obrigatória. |
 | `id_contrato_origem` | Identificador técnico no banco de origem. | Opcional. |
-| `numero_contrato` | Número do contrato consultado. | Obrigatório; único dentro da execução. |
+| `numero_contrato` | Número do contrato consultado. | Obrigatório; único dentro de cada execução. |
 | `status` | Estado do processamento. | `PENDENTE`, `PROCESSANDO`, `SUCESSO` ou `ERRO`. |
 | `worker_atual` | Worker que reservou ou processou o item. | Opcional; não transforma worker em entidade acadêmica. |
 | `iniciado_em` | Início da tentativa. | Opcional antes da reserva. |
@@ -443,10 +697,8 @@ Representa a trilha temporal e operacional da execução.
 | Atributo | Descrição | Regra de negócio associada |
 |---|---|---|
 | `id_evento` | Identificador do evento. | Chave primária obrigatória. |
-| `id_execucao` | Execução que originou o evento. | FK obrigatória. |
-| `id_contrato` | Contrato relacionado ao fato. | FK opcional; nulo para eventos gerais. |
 | `worker_label` | Identificador operacional do worker. | Opcional. |
-| `numero_contrato` | Número redundante para leitura histórica. | Opcional; não substitui a FK. |
+| `numero_contrato` | Número redundante para leitura histórica. | Opcional; não substitui o relacionamento conceitual. |
 | `tipo_evento` | Código do fato registrado. | Obrigatório e controlado. |
 | `mensagem` | Contexto legível do evento. | Opcional. |
 | `criado_em` | Momento imutável do evento. | Obrigatório. |
@@ -476,8 +728,7 @@ Representa o acompanhamento individual de cada ticket.
 | Atributo | Descrição | Regra de negócio associada |
 |---|---|---|
 | `id_instancia` | Identificador da instância. | Chave primária obrigatória. |
-| `id_lote` | Lote ao qual a instância pertence. | FK obrigatória. |
-| `numero_instancia` | Ordem sequencial dentro do lote. | Única dentro do lote. |
+| `numero_instancia` | Ordem sequencial dentro do lote relacionado. | Única dentro do lote. |
 | `ticket` | Protocolo devolvido pelo CSLOG. | Único dentro do lote. |
 | `status` | Estado textual do acompanhamento. | Obrigatório; inicia em `Aguardando`. |
 | `status_codigo` | Código numérico retornado. | Opcional. |
@@ -486,15 +737,12 @@ Representa o acompanhamento individual de cada ticket.
 | `atualizado_em` | Momento da última consulta. | Obrigatório. |
 | `finalizado_em` | Momento da conclusão. | Opcional enquanto não finalizada. |
 
-#### Entidade: CONTRATO_LOTE_IMPORTACAO
+#### Entidade associativa: PARTICIPACAO_LOTE
 
-Representa a associação entre contratos e lotes.
+Representa a participação N:N entre contratos processados e lotes de importação.
 
 | Atributo | Descrição | Regra de negócio associada |
 |---|---|---|
-| `id_contrato_lote` | Identificador da associação. | Chave primária obrigatória. |
-| `id_contrato` | Contrato participante. | FK obrigatória; compõe a unicidade. |
-| `id_lote` | Lote participante. | FK obrigatória; compõe a unicidade. |
 | `status_importacao` | Situação do contrato no lote. | `PENDENTE`, `RESERVADO`, `IMPORTADO` ou `ERRO`. |
 | `importado_em` | Momento da confirmação no CSLOG. | Opcional até a importação. |
 
@@ -502,46 +750,73 @@ Representa a associação entre contratos e lotes.
 
 ### Modelagem Conceitual (Entidades, Atributos, Relacionamentos)
 
+O modelo revisado possui um núcleo organizacional e um núcleo técnico. O primeiro representa o serviço da QORE desde o cadastro do cliente até a finalização do projeto. O segundo preserva o detalhamento comprovado da automação Accenture C6. O estado deste diagrama é **proposto para a revisão da Entrega 1**, e não uma implantação em produção.
+
 #### Entidades reconhecidas
 
 | Entidade | Justificativa |
 |---|---|
-| `AUTOMACAO` | Identifica o processo monitorado e permite que o modelo seja reutilizado para outras automações. |
-| `EXECUCAO` | Representa cada ciclo, fila ou janela processada, preservando totais e estado geral. |
-| `CONTRATO` | É a unidade de trabalho reservada, consultada e concluída dentro de uma execução. |
-| `EVENTO_EXECUCAO` | Registra fatos técnicos e operacionais que não cabem somente no status final. |
-| `LOTE_IMPORTACAO` | Representa o envio agrupado ao CSLOG e seus totais consolidados. |
-| `INSTANCIA_IMPORTACAO` | Permite acompanhar separadamente cada ticket gerado para o lote. |
-| `CONTRATO_LOTE_IMPORTACAO` | Resolve a relação N:N entre contratos processados e lotes importados. |
+| `CLIENTE` | Identifica a organização atendida e inicia o ciclo do serviço. |
+| `CHAMADO` | Registra a necessidade inicial ou um atendimento de suporte. |
+| `REUNIAO` | Preserva participantes, pauta, decisões e pendências do levantamento. |
+| `ESCOPO` | Versiona requisitos, entregas, limites, premissas e prazo. |
+| `PROPOSTA` | Registra a oferta baseada no escopo e a decisão do cliente. |
+| `CONTRATO_SERVICO` | Formaliza a prestação aprovada e sustenta a abertura do projeto. |
+| `PROJETO` | Organiza desenvolvimento, situação, datas e finalização do serviço. |
+| `FUNCIONARIO` | Identifica integrantes da QORE que podem participar de projetos. |
+| `ALOCACAO_PROJETO` | Entidade associativa entre funcionário e projeto, com função, período, dedicação e responsabilidade. |
+| `ENTREGA` | Registra o resultado disponibilizado e a decisão de aceite, ressalva ou rejeição. |
+| `AUTOMACAO` | Identifica uma solução automatizada pertencente a um projeto. |
+| `EXECUCAO` | Representa cada ciclo, fila ou janela processada pela automação. |
+| `CONTRATO_PROCESSADO` | Representa a unidade técnica consultada dentro de uma execução. |
+| `EVENTO_EXECUCAO` | Registra fatos técnicos e operacionais da execução e, opcionalmente, de um contrato processado. |
+| `LOTE_IMPORTACAO` | Representa o envio agrupado ao CSLOG. |
+| `INSTANCIA_IMPORTACAO` | Acompanha separadamente cada ticket gerado para o lote. |
+| `PARTICIPACAO_LOTE` | Entidade associativa que resolve a relação N:N entre contrato processado e lote. |
 
 #### Classificação dos atributos
 
-- **Identificadores:** `id_automacao`, `id_execucao`, `id_contrato`, `id_evento`, `id_lote`, `id_instancia` e `id_contrato_lote`.
-- **Descritivos:** `nome`, `descricao`, `nome_execucao`, `tipo_evento`, `mensagem` e `informacao`.
-- **Temporais:** `criado_em`, `iniciado_em`, `finalizado_em`, `atualizado_em` e `importado_em`.
-- **Operacionais:** `status`, `worker_atual`, `ticket`, `arquivo_importacao` e `status_importacao`.
-- **Métricas-resumo:** `total_contratos`, `contratos_sucesso`, `contratos_erro`, `qtd_instancias` e `total_linhas`.
-- **Derivado:** `qtd_workers`, calculado a partir dos workers vinculados à execução.
+- **Identificadores:** atributos `id_*` sublinhados no DER identificam entidades e não representam FKs no modelo conceitual.
+- **Descritivos:** nomes, objetivos, descrições, pautas, requisitos, decisões, objetos e mensagens explicam o fato registrado.
+- **Temporais:** cadastro, abertura, reunião, vigência, previsão, entrega, decisão, execução, importação e finalização preservam a sequência do ciclo.
+- **Estados e domínios:** situação, tipo, prioridade, decisão do cliente e estado técnico limitam valores válidos.
+- **Associativos:** função, período, dedicação e responsabilidade pertencem à alocação; situação e confirmação pertencem à participação no lote.
+- **Métricas-resumo:** totais e durações permanecem com execução e lote quando precisam ser preservados historicamente.
 
 #### Relacionamentos pertinentes
 
 | Origem | Relacionamento | Destino | Cardinalidade | Interpretação |
 |---|---|---|---:|---|
-| `AUTOMACAO` | gera | `EXECUCAO` | 1 : 0..N | Cada execução pertence a uma automação; uma automação pode ainda não ter execuções. |
-| `EXECUCAO` | processa | `CONTRATO` | 1 : 0..N | Uma execução pode ser vazia; cada contrato monitorado pertence a uma execução. |
-| `EXECUCAO` | registra | `EVENTO_EXECUCAO` | 1 : 0..N | Todo evento pertence a uma execução. |
-| `CONTRATO` | possui | `EVENTO_EXECUCAO` | 0..1 : 0..N | Cada evento aponta para zero ou um contrato; um contrato pode possuir vários eventos. Eventos gerais permanecem ligados apenas à execução. |
-| `CONTRATO` | participa | `CONTRATO_LOTE_IMPORTACAO` | 1 : 0..N | Um contrato pode não ser importado ou participar de lotes diferentes. |
-| `LOTE_IMPORTACAO` | contém | `CONTRATO_LOTE_IMPORTACAO` | 1 : 1..N | Um lote efetivo deve conter pelo menos um contrato. |
-| `LOTE_IMPORTACAO` | é acompanhado por | `INSTANCIA_IMPORTACAO` | 1 : 0..N | O lote pode existir antes do retorno do CSLOG; depois do envio aceito, deve possuir ao menos uma instância/ticket. |
+| `CLIENTE` | abre | `CHAMADO` | `(0,n) : (1,1)` | Um cliente pode não ter chamado; todo chamado pertence a um cliente. |
+| `CHAMADO` | possui | `REUNIAO` | `(0,n) : (1,1)` | Um chamado pode exigir várias reuniões; cada reunião pertence a um chamado. |
+| `REUNIAO` | define | `ESCOPO` | `(0,n) : (1,1)` | Uma reunião pode não gerar escopo ou contribuir para versões; cada escopo deriva de uma reunião registrada. |
+| `ESCOPO` | fundamenta | `PROPOSTA` | `(0,n) : (1,1)` | Um escopo pode fundamentar propostas revisadas; toda proposta se baseia em um escopo. |
+| `PROPOSTA` | gera | `CONTRATO_SERVICO` | `(0,1) : (1,1)` | Uma proposta pode não ser aprovada; todo contrato deriva de uma proposta aprovada. |
+| `CONTRATO_SERVICO` | abre | `PROJETO` | `(0,n) : (1,1)` | Um contrato pode existir antes da abertura e sustentar mais de um projeto; todo projeto pertence a um contrato. |
+| `CHAMADO` | refere-se a | `PROJETO` | `(0,1) : (0,n)` | Uma solicitação pode anteceder o projeto; chamados de suporte podem apontar para o projeto relacionado. |
+| `CHAMADO` | relata | `ENTREGA` | `(0,1) : (0,n)` | Quando aplicável, o chamado aponta para a entrega específica que motivou o atendimento. |
+| `FUNCIONARIO` | aloca-se por | `ALOCACAO_PROJETO` | `(0,n) : (1,1)` | Um funcionário pode participar de vários projetos; cada alocação identifica um funcionário. |
+| `PROJETO` | recebe | `ALOCACAO_PROJETO` | `(1,n) : (1,1)` | Todo projeto possui ao menos um responsável; cada alocação pertence a um projeto. |
+| `PROJETO` | produz | `ENTREGA` | `(0,n) : (1,1)` | Um projeto pode ainda não ter entrega; toda entrega pertence a um projeto. |
+| `PROJETO` | possui | `AUTOMACAO` | `(0,n) : (1,1)` | Nem todo projeto produz automação; toda automação modelada pertence a um projeto. |
+| `AUTOMACAO` | gera | `EXECUCAO` | `(0,n) : (1,1)` | Uma automação pode ainda não ter execuções; toda execução pertence a uma automação. |
+| `EXECUCAO` | processa | `CONTRATO_PROCESSADO` | `(0,n) : (1,1)` | Uma execução vazia é válida; todo contrato processado pertence a uma execução. |
+| `EXECUCAO` | registra | `EVENTO_EXECUCAO` | `(0,n) : (1,1)` | Uma execução pode existir antes do primeiro evento; todo evento pertence a uma execução. |
+| `CONTRATO_PROCESSADO` | contextualiza | `EVENTO_EXECUCAO` | `(0,n) : (0,1)` | Um contrato pode possuir eventos; eventos gerais não precisam apontar para contrato. |
+| `CONTRATO_PROCESSADO` | participa por | `PARTICIPACAO_LOTE` | `(0,n) : (1,1)` | Um contrato pode não ser importado ou participar de diferentes lotes. |
+| `LOTE_IMPORTACAO` | contém | `PARTICIPACAO_LOTE` | `(1,n) : (1,1)` | Um lote efetivo contém ao menos um contrato processado. |
+| `LOTE_IMPORTACAO` | acompanha | `INSTANCIA_IMPORTACAO` | `(0,n) : (1,1)` | O lote pode existir antes do retorno; toda instância pertence a um lote. |
 
 #### Restrições aplicadas ao modelo
 
-- `CONTRATO` é único por `id_execucao + numero_contrato`;
-- `CONTRATO_LOTE_IMPORTACAO` é único por `id_contrato + id_lote`;
-- `INSTANCIA_IMPORTACAO` é única por `id_lote + numero_instancia` e por `id_lote + ticket`;
-- `EVENTO_EXECUCAO.id_execucao` é obrigatório;
-- `EVENTO_EXECUCAO.id_contrato` é opcional para permitir eventos gerais;
+- cliente, chamado, proposta, contrato e projeto devem preservar a sequência que originou o serviço;
+- projeto concluído deve possuir entrega com decisão do cliente;
+- projeto cancelado preserva data, responsável e motivo;
+- cada projeto possui ao menos uma alocação responsável;
+- `CONTRATO_PROCESSADO` é único por execução e número de contrato;
+- `PARTICIPACAO_LOTE` é única para o mesmo contrato processado e lote;
+- número de instância e ticket são únicos dentro do lote relacionado;
+- todo evento pertence a uma execução e pode opcionalmente contextualizar um contrato processado;
 - somente mudanças funcionais relevantes podem participar da importação;
 - resultados concluídos não podem ser repetidos automaticamente em uma retomada.
 
@@ -549,15 +824,19 @@ Representa a associação entre contratos e lotes.
 
 ### Diagrama Entidade-Relacionamento (DER)
 
-![Diagrama Entidade-Relacionamento da Automação Accenture C6](DER_ACCENTURE_C6.png)
+![DER conceitual revisado do ciclo de serviços da QORE](DER_QORE_CICLO_SERVICOS.png)
 
-O DER conceitual contém as sete entidades reconhecidas, atributos essenciais, relacionamentos nomeados e participações mínima e máxima. A separação entre `AUTOMACAO` e `EXECUCAO` permite crescimento para outros processos. A separação entre consulta e importação reduz acoplamento, enquanto a entidade associativa preserva integração e rastreabilidade sem manter o detalhamento de cada linha do CRM no núcleo acadêmico.
+O DER foi criado com **Python e Pillow**, seguindo a notação conceitual do brModelo exigida na disciplina: entidades em retângulos, relacionamentos em losangos, identificadores sublinhados, entidades associativas envolvendo o relacionamento e cardinalidades `(mínimo, máximo)` nos dois lados. Nenhuma chave estrangeira é apresentada no modelo conceitual.
 
-#### Modelo lógico preliminar complementar
+O diagrama separa visualmente o núcleo organizacional, em roxo e dourado, do subsistema técnico Accenture C6, em azul. A ligação `PROJETO — possui — AUTOMACAO` demonstra que a automação é parte de um serviço contratado, e não o escopo completo da organização.
 
-![Modelo lógico preliminar da Automação Accenture C6](MODELO_LOGICO_ACCENTURE_C6.png)
+### Dicionário de Dados Completo
 
-O modelo lógico é apresentado apenas como evidência de viabilidade futura. Ele detalha chaves, tipos, nulabilidade e unicidade derivados do modelo conceitual, sem alterar o objeto principal da Entrega 1. A cardinalidade entre lote e instância considera o ciclo de vida: antes do retorno do CSLOG, um lote pode possuir zero instâncias; após envio aceito, a regra operacional exige ao menos um ticket.
+O dicionário revisado está disponível em um único arquivo HTML, conforme a orientação da correção: [abrir o Dicionário de Dados da QORE](DICIONARIO_DADOS_ACCENTURE_C6.html). O documento reúne as 17 entidades, atributos físicos propostos, tipos MySQL 8.0+, nulabilidade, chaves, unicidade, valores padrão, domínios, índices, descrições, rastreabilidade com requisitos e regras, cardinalidades, convenções, perfis de acesso, auditoria e classificação LGPD.
+
+#### Modelo lógico anterior
+
+O arquivo `MODELO_LOGICO_ACCENTURE_C6.png` permanece no repositório apenas como histórico da Entrega 1 anterior. Ele não é incorporado ao README porque deriva do recorte técnico de sete entidades e será substituído somente depois da aprovação do novo modelo conceitual.
 
 ---
 
@@ -565,18 +844,25 @@ O modelo lógico é apresentado apenas como evidência de viabilidade futura. El
 
 | Decisão | Justificativa |
 |---|---|
+| Modelar o ciclo desde `CLIENTE` até `PROJETO` | A correção do professor mostrou que representar apenas a automação cobria somente parte da organização. |
+| Manter `CHAMADO` como origem e suporte | O mesmo conceito permite registrar a necessidade inicial e atendimentos posteriores sem perder o vínculo histórico. |
+| Separar `REUNIAO`, `ESCOPO` e `PROPOSTA` | Esses objetos possuem versões, decisões e ciclos de vida próprios; uni-los ocultaria como a necessidade se transforma em contratação. |
+| Separar `CONTRATO_SERVICO` de `CONTRATO_PROCESSADO` | O primeiro formaliza a prestação da QORE; o segundo é uma unidade técnica consultada no Portal C6 Auto. Usar o mesmo nome geraria ambiguidade. |
+| Criar `ALOCACAO_PROJETO` como associativa | Funcionários participam de vários projetos e cada projeto possui vários funcionários; função, período e dedicação pertencem à participação. |
+| Manter aceite dentro de `ENTREGA` | A decisão do cliente existe em função de uma entrega específica e, no escopo confirmado, não precisa de identidade independente. |
+| Vincular `AUTOMACAO` a `PROJETO` | A automação passa a ter contexto de cliente, contrato, equipe e entrega sem duplicar esses dados no subsistema técnico. |
 | Separar `AUTOMACAO` e `EXECUCAO` | Uma automação pode executar várias vezes. A separação evita repetir dados do processo em cada ciclo e permite incluir outras automações futuramente. |
-| Usar `CONTRATO` como item da execução | O contrato já reúne status, tempos, worker e métricas do processamento; uma entidade adicional de processamento duplicaria o mesmo fato. |
+| Usar `CONTRATO_PROCESSADO` como item da execução | A entidade reúne status, tempos, responsável e métricas do processamento sem ser confundida com o contrato comercial. |
 | Manter `EVENTO_EXECUCAO` | O status final não explica mudanças intermediárias, falhas de sessão, retomadas ou decisões do supervisor. Eventos preservam a sequência temporal. |
-| Criar `CONTRATO_LOTE_IMPORTACAO` | Um contrato pode participar de diferentes lotes e um lote contém vários contratos. A entidade associativa normaliza a relação N:N. |
+| Criar `PARTICIPACAO_LOTE` | Um contrato processado pode participar de diferentes lotes e um lote contém vários contratos. A entidade associativa representa a relação N:N. |
 | Não modelar `WORKER` | O objetivo acadêmico precisa da quantidade utilizada e da referência operacional, mas não de cadastro, perfil ou ciclo de vida independente do worker. |
-| Omitir `PROCESSAMENTO_CONTRATO` | `CONTRATO` já representa a participação do contrato em uma execução; manter ambos produziria redundância. |
+| Omitir `PROCESSAMENTO_CONTRATO` | `CONTRATO_PROCESSADO` já representa a participação do contrato em uma execução; manter ambos produziria redundância. |
 | Omitir `MOVIMENTO_CSLOG` | O detalhe por parcela/linha aumentaria o DER além do recorte. A ligação contrato-lote mantém a rastreabilidade exigida nesta entrega. |
-| Não criar entidade genérica `METRICA` | As métricas possuem proprietários claros (`EXECUCAO`, `CONTRATO` ou `LOTE_IMPORTACAO`) ou são derivadas. Uma entidade genérica aumentaria ambiguidade. |
+| Não criar entidade genérica `METRICA` | As métricas possuem proprietários claros (`EXECUCAO`, `CONTRATO_PROCESSADO` ou `LOTE_IMPORTACAO`) ou são derivadas. Uma entidade genérica aumentaria ambiguidade. |
 | Separar importação da execução | A consulta e a importação possuem estados, erros e tempos independentes. Uma pode ser concluída ou recuperada sem alterar conceitualmente a outra. |
 | Representar tickets como instâncias | Um único envio pode gerar vários tickets, e cada ticket possui status, mensagem e erro próprios. |
 
-As alternativas rejeitadas não foram descartadas por inexistirem no sistema físico, mas porque não eram necessárias ao **recorte conceitual**. O modelo procura equilibrar fidelidade ao processo, clareza acadêmica, normalização e possibilidade de evolução.
+As alternativas rejeitadas não foram descartadas por inexistirem no sistema físico, mas porque não eram necessárias ao **recorte conceitual revisado**. O modelo procura equilibrar o ciclo organizacional confirmado, a fidelidade técnica da automação, a clareza acadêmica e a possibilidade de evolução para o modelo lógico.
 
 ---
 
@@ -651,15 +937,56 @@ A IA não teve acesso autônomo ao ambiente produtivo, não realizou a pesquisa 
 | Justificativa da escolha final | O DER conceitual permanece como entrega principal; arquitetura e modelo lógico aparecem como complementos explicativos. |
 | Reflexão crítica | Aprofundamento técnico não compensa desalinhamento acadêmico. Informações organizacionais fornecidas em entrevista precisam ser distinguidas de fatos verificados em sistemas públicos. |
 
+#### Uso 6 — Correção do escopo organizacional após a avaliação da Entrega 1
+
+| Item | Registro |
+|---|---|
+| Ferramenta e etapa | ChatGPT/Codex — comparação entre a correção do professor, os documentos da Entrega 1 e o fluxo organizacional informado pelo integrante Arthur Costa. |
+| Motivação | Corrigir o recorte que representava somente a automação e ampliar o trabalho do cadastro do cliente à finalização do projeto. |
+| Prompt utilizado | “Lembre-se de consultar os documentos de Entrega 1. O cliente abre chamado explicando a necessidade; analisamos, marcamos agenda, montamos escopo e proposta, ocorre contratação, abertura do projeto, desenvolvimento, entrega e suporte. Considere desde o cadastro do cliente à finalização do projeto.” |
+| Resposta recebida | Plano em três blocos e proposta de correção do título, caracterização, problemas, processos, requisitos, regras, rastreabilidade e entidades organizacionais. |
+| Fontes consultadas e verificadas | README, relatório PDF, DER, modelo lógico, cardinalidades, dicionário HTML, fluxogramas, diagrama de origem dos dados, evidência da entrevista e anotação com a correção do professor. |
+| Trechos rejeitados ou corrigidos | Processos de faturamento, compras, fornecedores, licenças e infraestrutura não foram apresentados como confirmados porque o levantamento fornecido ainda não explica como funcionam na organização. |
+| Justificativa da escolha final | Foram incorporados somente o ciclo e os volumes informados: aproximadamente 50 funcionários, 7 clientes ativos, mais de 20 projetos ativos e mais de 100 chamados mensais. |
+| Reflexão crítica | Uma ampliação automática do DER poderia transformar processos apenas prováveis em fatos. A revisão separa conteúdo confirmado, subsistema técnico reaproveitado e pontos ainda sujeitos a validação. |
+
+#### Uso 7 — Revisão das entidades, cardinalidades e DER conceitual
+
+| Item | Registro |
+|---|---|
+| Ferramenta e etapa | ChatGPT/Codex — definição do modelo conceitual revisado e geração programática do DER em PNG. |
+| Motivação | Conectar o ciclo organizacional ao subsistema Accenture C6 e corrigir a notação de caixas e setas apontada na avaliação. |
+| Prompt utilizado | “Pode seguir com o Bloco B: definir entidades, atributos, relacionamentos e cardinalidades e produzir o novo DER conceitual no padrão exigido.” |
+| Resposta recebida | Proposta com 15 entidades regulares, duas entidades associativas, 19 relacionamentos e um DER com cardinalidades mínima/máxima nos dois lados. |
+| Fontes consultadas e verificadas | Correção do professor, README revisado, cardinalidades anteriores, dicionário, DER anterior, modelo lógico complementar e regras da notação apresentadas no esqueleto da Entrega 2. |
+| Trechos rejeitados ou corrigidos | `ACEITE` não foi mantida como entidade independente porque sua identidade depende da entrega; `CONTRATO` foi separado em `CONTRATO_SERVICO` e `CONTRATO_PROCESSADO`; ligações associativas inicialmente redundantes foram removidas após inspeção visual. |
+| Justificativa da escolha final | O modelo diferencia o contrato comercial do item técnico, preserva a automação como parte de um projeto e usa entidades associativas somente quando há relação N:N com atributos próprios. |
+| Reflexão crítica | Um diagrama visualmente completo ainda pode estar conceitualmente incorreto. Foi necessário revisar terminações das linhas, cardinalidades e a representação das associativas depois da primeira renderização. |
+
+#### Uso 8 — Conclusão da correção e reconstrução do dicionário
+
+| Item | Registro |
+|---|---|
+| Ferramenta e etapa | ChatGPT/Codex — alinhamento final entre README, DER, cardinalidades, fluxo organizacional, arquitetura e dicionário HTML. |
+| Motivação | Concluir a correção da Entrega 1 seguindo integralmente o retorno do professor e eliminar divergências entre os artefatos. |
+| Prompt utilizado | “Pode seguir até o final, só pare se precisar de mim para algo.” |
+| Resposta recebida | Geração do fluxo completo do serviço, novo diagrama de origem dos dados, dicionário HTML de 17 entidades e inclusão dos vínculos opcionais de suporte entre chamado, projeto e entrega. |
+| Fontes consultadas e verificadas | Documentos da Entrega 1, correção registrada no Obsidian, fatos organizacionais informados pelo integrante e artefatos revisados neste repositório. |
+| Trechos rejeitados ou corrigidos | O dicionário restrito ao subsistema técnico foi substituído; a referência ao diagrama antigo de arquitetura foi removida; a conclusão intermediária que anunciava um bloco futuro foi atualizada. |
+| Justificativa da escolha final | Os documentos agora compartilham o mesmo escopo, as mesmas entidades e as mesmas cardinalidades, cobrindo do cadastro do cliente à finalização e ao suporte. |
+| Reflexão crítica | A consistência entre texto, imagem e dicionário precisa ser verificada de forma cruzada; atualizar apenas um artefato recriaria a lacuna apontada na avaliação. |
+
 ---
 
 ## Conclusão
 
-O trabalho transformou um processo operacional distribuído em um modelo conceitual organizado e rastreável. O levantamento identificou como os contratos são selecionados, consultados, classificados, persistidos e enviados ao CSLOG. A principal contribuição do modelo é ligar cada execução aos contratos e eventos correspondentes e, posteriormente, relacionar esses contratos aos lotes e tickets de importação.
+O Bloco A da revisão ampliou o trabalho para o ciclo completo dos serviços da QORE Tecnologia, desde o cadastro do cliente até a finalização do projeto. O levantamento passou a representar chamados, análise, reunião, escopo, proposta, contratação, projeto, equipe, entrega, aceite e suporte, preservando a automação Accenture C6 como subsistema técnico de um projeto.
 
-O grupo consolidou conhecimentos sobre levantamento de requisitos, regras de negócio, abstração, cardinalidade, integridade referencial e relações muitos-para-muitos. Também aprendeu que o modelo conceitual não precisa reproduzir toda tabela física: ele deve representar os fatos essenciais ao problema delimitado.
+Foram registrados dez problemas rastreáveis, 34 requisitos funcionais, 12 requisitos não funcionais e 32 regras de negócio. Os códigos técnicos originais foram preservados e o novo conteúdo organizacional foi acrescentado sem apresentar como confirmados os processos que ainda dependem de validação.
 
-Como trabalhos futuros, o modelo lógico preliminar poderá ser validado e convertido em esquema físico, receber validações automatizadas de integridade, incorporar políticas formais de retenção e avaliar, em um projeto separado, se parcelas, ocorrências ou movimentos do CSLOG precisam integrar um recorte analítico mais detalhado.
+O Bloco B substituiu o modelo conceitual restrito à automação por um DER que integra o núcleo organizacional ao subsistema Accenture C6. O diagrama adota relacionamentos por losangos, identificadores sublinhados, entidades associativas e cardinalidades mínima e máxima nos dois lados.
+
+A correção da Entrega 1 foi completada com o fluxo organizacional integral, a arquitetura de origem e responsabilidade dos dados, a matriz de 19 relacionamentos e o dicionário HTML das 17 entidades. Esses artefatos permanecem como proposta acadêmica validada internamente; a aprovação formal cabe ao professor, e o modelo lógico deverá ser produzido na etapa correspondente da disciplina.
 
 ---
 

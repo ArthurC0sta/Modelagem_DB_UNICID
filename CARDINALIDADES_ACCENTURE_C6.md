@@ -1,48 +1,66 @@
-# Cardinalidades — Automação Accenture C6
+# Cardinalidades — Ciclo de Serviços da QORE
 
-## Escopo aprovado
+## Status e escopo
 
-O modelo acadêmico possui sete entidades:
+Este documento descreve o **modelo conceitual proposto para a revisão da Entrega 1**. O escopo cobre o ciclo desde o cadastro do cliente até a finalização do projeto e conecta a automação Accenture C6 como subsistema técnico. As cardinalidades usam a notação `(mínimo, máximo)` nos dois lados.
 
-1. `AUTOMACAO`
-2. `EXECUCAO`
-3. `CONTRATO`
-4. `EVENTO_EXECUCAO`
-5. `LOTE_IMPORTACAO`
-6. `INSTANCIA_IMPORTACAO`
-7. `CONTRATO_LOTE_IMPORTACAO`
+## Núcleo organizacional
 
-`PROCESSAMENTO_CONTRATO`, `WORKER` e `MOVIMENTO_CSLOG` não são entidades do modelo final. A quantidade de workers é representada como métrica derivada em `EXECUCAO`. A rastreabilidade necessária após a retirada de `MOVIMENTO_CSLOG` é preservada por `CONTRATO_LOTE_IMPORTACAO`.
+| Origem | Relacionamento | Destino | Origem | Destino | Leitura |
+|---|---|---|---:|---:|---|
+| `CLIENTE` | abre | `CHAMADO` | `(0,n)` | `(1,1)` | Um cliente pode não ter chamados; todo chamado pertence a um cliente. |
+| `CHAMADO` | possui | `REUNIAO` | `(0,n)` | `(1,1)` | Um chamado pode exigir várias reuniões; cada reunião pertence a um chamado. |
+| `REUNIAO` | define | `ESCOPO` | `(0,n)` | `(1,1)` | Uma reunião pode não gerar escopo ou contribuir para versões; cada escopo deriva de uma reunião. |
+| `ESCOPO` | fundamenta | `PROPOSTA` | `(0,n)` | `(1,1)` | Um escopo pode fundamentar propostas revisadas; toda proposta se baseia em um escopo. |
+| `PROPOSTA` | gera | `CONTRATO_SERVICO` | `(0,1)` | `(1,1)` | Uma proposta pode não ser aprovada; todo contrato deriva de uma proposta aprovada. |
+| `CONTRATO_SERVICO` | abre | `PROJETO` | `(0,n)` | `(1,1)` | Um contrato pode existir antes da abertura e sustentar mais de um projeto; todo projeto pertence a um contrato. |
+| `CHAMADO` | refere-se a | `PROJETO` | `(0,1)` | `(0,n)` | Uma solicitação inicial pode preceder o projeto; um chamado de suporte pode apontar para um projeto, que pode possuir vários chamados. |
+| `CHAMADO` | relata | `ENTREGA` | `(0,1)` | `(0,n)` | Um chamado pode tratar de uma entrega específica; uma entrega pode originar vários atendimentos. |
+| `FUNCIONARIO` | participa por | `ALOCACAO_PROJETO` | `(0,n)` | `(1,1)` | Um funcionário pode participar de vários projetos; cada alocação identifica um funcionário. |
+| `PROJETO` | recebe | `ALOCACAO_PROJETO` | `(1,n)` | `(1,1)` | Todo projeto possui ao menos um responsável; cada alocação pertence a um projeto. |
+| `PROJETO` | produz | `ENTREGA` | `(0,n)` | `(1,1)` | Um projeto pode ainda não ter entregas; toda entrega pertence a um projeto. |
+| `PROJETO` | possui | `AUTOMACAO` | `(0,n)` | `(1,1)` | Nem todo projeto produz automação; toda automação modelada pertence a um projeto. |
 
-## Relacionamentos e participações
+## Subsistema técnico Accenture C6
 
-| Origem | Cardinalidade | Destino | Regra de integridade |
-|---|---:|---|---|
-| `AUTOMACAO` | 1 : 0..N | `EXECUCAO` | Uma execução pertence obrigatoriamente a uma automação; uma automação pode ainda não ter execuções. |
-| `EXECUCAO` | 1 : 0..N | `CONTRATO` | Um contrato processado pertence a uma única execução; uma execução pode terminar sem contratos retornados. |
-| `EXECUCAO` | 1 : 0..N | `EVENTO_EXECUCAO` | Todo evento pertence a uma execução; a execução pode existir antes do primeiro evento. |
-| `CONTRATO` | 0..1 : 0..N | `EVENTO_EXECUCAO` | Um evento refere-se a zero ou um contrato; um contrato pode possuir vários eventos. Eventos gerais mantêm a FK de contrato nula. |
-| `CONTRATO` | 1 : 0..N | `CONTRATO_LOTE_IMPORTACAO` | Um contrato pode não ser importado ou pode participar de diferentes lotes ao longo do processo. |
-| `LOTE_IMPORTACAO` | 1 : 1..N | `CONTRATO_LOTE_IMPORTACAO` | Um lote representa uma importação efetiva e deve conter pelo menos um contrato. |
-| `LOTE_IMPORTACAO` | 1 : 0..N | `INSTANCIA_IMPORTACAO` | Um lote pode existir antes do retorno do CSLOG. Após o envio aceito, deve possuir ao menos uma instância/ticket. |
+| Origem | Relacionamento | Destino | Origem | Destino | Leitura |
+|---|---|---|---:|---:|---|
+| `AUTOMACAO` | gera | `EXECUCAO` | `(0,n)` | `(1,1)` | Uma automação pode ainda não ter execuções; toda execução pertence a uma automação. |
+| `EXECUCAO` | processa | `CONTRATO_PROCESSADO` | `(0,n)` | `(1,1)` | Uma execução vazia é válida; todo contrato processado pertence a uma execução. |
+| `EXECUCAO` | registra | `EVENTO_EXECUCAO` | `(0,n)` | `(1,1)` | Uma execução pode existir antes do primeiro evento; todo evento pertence a uma execução. |
+| `CONTRATO_PROCESSADO` | contextualiza | `EVENTO_EXECUCAO` | `(0,n)` | `(0,1)` | Um contrato pode possuir eventos; eventos gerais não precisam apontar para contrato. |
+| `CONTRATO_PROCESSADO` | participa por | `PARTICIPACAO_LOTE` | `(0,n)` | `(1,1)` | Um contrato pode não ser importado ou participar de diferentes lotes. |
+| `LOTE_IMPORTACAO` | contém | `PARTICIPACAO_LOTE` | `(1,n)` | `(1,1)` | Um lote efetivo contém ao menos um contrato processado. |
+| `LOTE_IMPORTACAO` | acompanha | `INSTANCIA_IMPORTACAO` | `(0,n)` | `(1,1)` | Um lote pode existir antes do retorno; toda instância pertence a um lote. |
 
-## Relação muitos-para-muitos resolvida
+## Entidades associativas
 
-Conceitualmente, `CONTRATO` e `LOTE_IMPORTACAO` possuem uma relação N:N. Ela foi normalizada pela entidade associativa `CONTRATO_LOTE_IMPORTACAO`, que contém:
+### ALOCACAO_PROJETO
 
-- `id_contrato_lote` — chave primária;
-- `id_contrato` — chave estrangeira para `CONTRATO`;
-- `id_lote` — chave estrangeira para `LOTE_IMPORTACAO`;
-- `status_importacao` — situação do contrato dentro daquele lote;
-- `importado_em` — data e hora da importação, quando concluída;
-- restrição única em `(id_contrato, id_lote)`.
+Resolve a relação N:N entre `FUNCIONARIO` e `PROJETO` e possui atributos próprios:
 
-## Decisões de fidelidade ao processo real
+- função no projeto;
+- início e fim da participação;
+- dedicação;
+- responsabilidade.
 
-- `CONTRATO` representa a unidade processada pela automação e substitui a necessidade de `PROCESSAMENTO_CONTRATO`.
-- `EVENTO_EXECUCAO` permanece no modelo porque registra a trilha de auditoria, mudanças de estado, worker associado, mensagens e o contrato relacionado quando aplicável.
-- `total_contratos`, `contratos_sucesso` e `contratos_erro` permanecem em `EXECUCAO` como métricas-resumo persistidas.
-- `qtd_workers` é um atributo derivado, não uma entidade independente.
-- `total_contratos`, `total_linhas` e `qtd_instancias` permanecem em `LOTE_IMPORTACAO` como métricas-resumo da operação de CRM.
-- `INSTANCIA_IMPORTACAO` permite acompanhar separadamente cada ticket/instância criado para um lote.
-- O modelo não afirma integração ao vivo ou implantação em ambiente produtivo; ele representa a estrutura observada no projeto local e a simplificação acadêmica aprovada.
+### PARTICIPACAO_LOTE
+
+Resolve a relação N:N entre `CONTRATO_PROCESSADO` e `LOTE_IMPORTACAO` e possui:
+
+- situação da importação;
+- momento da confirmação.
+
+## Restrições conceituais
+
+- todo projeto pertence a um contrato de serviço derivado de proposta aprovada;
+- chamados de suporte podem se vincular diretamente ao projeto e, quando aplicável, à entrega relacionada;
+- todo projeto possui ao menos uma alocação responsável;
+- projeto concluído possui entrega com decisão do cliente;
+- projeto cancelado preserva data, responsável e motivo;
+- contrato processado é único dentro da execução pelo número consultado;
+- a mesma combinação de contrato processado e lote participa uma única vez;
+- número da instância e ticket são únicos dentro do lote relacionado;
+- todo evento pertence a uma execução e pode opcionalmente contextualizar um contrato processado;
+- após envio aceito pelo CSLOG, o lote deve possuir ao menos uma instância de acompanhamento;
+- o DER conceitual não apresenta chaves estrangeiras.

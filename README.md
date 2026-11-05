@@ -1,4 +1,4 @@
-# Entrega 1 — Modelo Conceitual (DER)
+# Entrega 2 — Modelo Lógico, Implementação SQL e Apresentação Final
 
 | Informação | Identificação |
 |---|---|
@@ -10,17 +10,35 @@
 
 ## Integrantes
 
-| Integrante | RGM |
-|---|---:|
-| Arthur Costa | 46677259 |
-| Felipe Pereira Vescia | 46825576 |
-| Roginer Haiz dos Santos | 47632160 |
+| Integrante | RGM | Usuário do GitHub |
+|---|---:|---|
+| Arthur Costa | 46677259 | `Arthurr-Costa` |
+| Felipe Pereira Vescia | 46825576 | `FelipeVescia` |
+| Roginer Haiz dos Santos | 47632160 | `RoginerHaiz` |
 
 ---
 
-# Título
+## Artefatos da Entrega 2
 
-## Modelagem de Banco de Dados para Gestão do Ciclo de Serviços e Automações da QORE Tecnologia
+| Artefato | Arquivo |
+|---|---|
+| Levantamento consolidado | [levantamento/levantamento.md](levantamento/levantamento.md) |
+| DER conceitual revisado | [DER_QORE_CICLO_SERVICOS.png](DER_QORE_CICLO_SERVICOS.png) |
+| Modelo lógico relacional | [MODELO_LOGICO_QORE_ENTREGA_2.png](MODELO_LOGICO_QORE_ENTREGA_2.png) |
+| Dicionário de dados | [DICIONARIO_DADOS_ACCENTURE_C6.html](DICIONARIO_DADOS_ACCENTURE_C6.html) |
+| Script MySQL, massa e consultas | [docs/qore_entrega_2.sql](docs/qore_entrega_2.sql) |
+| Evidência da validação SQL | [docs/VALIDACAO_SQL.md](docs/VALIDACAO_SQL.md) |
+| Apresentação final | [apresentacao/Entrega_2_QORE.pptx](apresentacao/Entrega_2_QORE.pptx) |
+
+O script foi projetado para **MySQL 8.0 ou superior**. Todos os dados de demonstração são fictícios e usam o domínio reservado `exemplo.invalid`.
+
+---
+
+## 1. Relatório Técnico Final
+
+### 1.1 Revisão do Modelo Conceitual
+
+#### Modelagem de Banco de Dados para Gestão do Ciclo de Serviços e Automações da QORE Tecnologia
 
 ## Introdução
 
@@ -146,11 +164,17 @@ Os dados operacionais são originados nos sistemas externos; o banco proposto re
 - **E-mail divulgado:** contato@qoretecnologia.com.br.
 - **Responsável consultado:** Leonardo Queiroz — CEO.
 - **Participantes da consulta:** Leonardo Queiroz — CEO; Renan Medeiros — Tech Lead; Arthur Costa — Dev.
-- **Forma de pesquisa:** reunião remota, observação do processo, leitura da documentação, inspeção de código e análise controlada do banco local.
+- **Forma de pesquisa comprovada no repositório:** reunião remota registrada em imagem, complementada por leitura da documentação, inspeção de código e análise controlada do banco local.
+- **Local institucional:** sede da QORE Tecnologia, R. Niterói, 62 — São Caetano do Sul, SP.
+- **Contato para confirmação:** Leonardo Queiroz — CEO, pelo telefone institucional (11) 4081-5292.
+- **Data do registro remoto:** 17/09/2026, conforme os metadados do arquivo de evidência.
+- **Evidência presencial da Entrega 2:** o grupo informou que a atividade foi concluída, mas a fotografia presencial e a data exata da visita ainda precisam ser adicionadas ao repositório antes do envio ao professor.
 
 ![Registro dos participantes da QORE envolvidos na pesquisa](EQUIPE_QORE_EMPRESA_CONSULTADA.png)
 
 > A fotografia é utilizada exclusivamente como evidência acadêmica da empresa consultada e das pessoas que participaram do levantamento.
+
+O [levantamento consolidado](levantamento/levantamento.md) separa informações declaradas e achados de observação. A imagem atual comprova os participantes da reunião remota, mas não substitui a fotografia presencial solicitada na rubrica.
 
 #### Correções realizadas a partir da avaliação da Entrega 1
 
@@ -362,18 +386,9 @@ Os indicadores são derivados das entidades, evitando duplicação desnecessári
 | P09 — lote confirmado antes de todos os tickets | Acompanhamento individual e regra de conclusão conjunta | `LOTE_IMPORTACAO` e `INSTANCIA_IMPORTACAO` |
 | P10 — exposição de dados e credenciais | Minimização, sanitização e controle de acesso | Entidades com dados pessoais e trilha de acesso |
 
-#### Evolução planejada
+#### Estado da implementação acadêmica
 
-Esta entrega permanece no nível conceitual. A implementação futura deve ocorrer de forma incremental:
-
-1. converter o DER em modelo lógico, definindo tipos, chaves, nulabilidade, domínios de status e índices necessários;
-2. criar o esquema físico inicialmente compatível com o SQLite já usado pela automação, preservando o baixo custo operacional;
-3. executar migração controlada, com cópia de segurança, validação de totais e possibilidade de retorno;
-4. validar concorrência, retomada, deduplicação e integridade com testes automatizados;
-5. construir consultas ou painel de acompanhamento sobre o modelo estabilizado;
-6. avaliar banco servidor somente se surgirem demanda multiusuário, centralização ou volume que o SQLite local não atenda adequadamente.
-
-A escolha evita introduzir uma arquitetura distribuída sem necessidade comprovada. A solução aprofunda o controle do processo atual e mantém uma trajetória clara de evolução, sem confundir proposta acadêmica com implantação já realizada.
+A Entrega 2 converteu o DER em modelo lógico, implementou o esquema físico em MySQL, criou massa fictícia e adicionou consultas gerenciais e de auditoria. A execução local do banco vazio está registrada em [docs/VALIDACAO_SQL.md](docs/VALIDACAO_SQL.md). Essa implementação é acadêmica e independente do SQLite operacional da automação; ela não representa migração ou implantação em produção.
 
 ---
 
@@ -496,7 +511,7 @@ As regras técnicas `RN01` a `RN16` continuam aplicáveis ao subsistema Accentur
 
 ### Atributos do Modelo Conceitual Revisado
 
-Esta seção descreve os atributos necessários para compreender o modelo conceitual. Os identificadores são atributos conceituais; as chaves estrangeiras serão introduzidas somente no modelo lógico. O dicionário HTML completo, com tipos físicos, nulabilidade, unicidade, domínios, padrões, índices, papéis e LGPD, será reconstruído no Bloco C. Não são apresentados exemplos com dados reais de clientes ou contratos.
+Esta seção descreve os atributos necessários para compreender o modelo conceitual. Os identificadores são atributos conceituais; as chaves estrangeiras estão implementadas no modelo lógico e no script SQL. O dicionário HTML completo apresenta tipos físicos, nulabilidade, unicidade, domínios, padrões, índices, papéis e LGPD. Não são apresentados exemplos com dados reais de clientes ou contratos.
 
 #### Entidade: CLIENTE
 
@@ -750,7 +765,7 @@ Representa a participação N:N entre contratos processados e lotes de importaç
 
 ### Modelagem Conceitual (Entidades, Atributos, Relacionamentos)
 
-O modelo revisado possui um núcleo organizacional e um núcleo técnico. O primeiro representa o serviço da QORE desde o cadastro do cliente até a finalização do projeto. O segundo preserva o detalhamento comprovado da automação Accenture C6. O estado deste diagrama é **proposto para a revisão da Entrega 1**, e não uma implantação em produção.
+O modelo revisado possui um núcleo organizacional e um núcleo técnico. O primeiro representa o serviço da QORE desde o cadastro do cliente até a finalização do projeto. O segundo preserva o detalhamento comprovado da automação Accenture C6. O estado deste diagrama é **modelo conceitual revisado e utilizado como base da Entrega 2**, e não uma implantação em produção.
 
 #### Entidades reconhecidas
 
@@ -836,7 +851,115 @@ O dicionário revisado está disponível em um único arquivo HTML, conforme a o
 
 #### Modelo lógico anterior
 
-O arquivo `MODELO_LOGICO_ACCENTURE_C6.png` permanece no repositório apenas como histórico da Entrega 1 anterior. Ele não é incorporado ao README porque deriva do recorte técnico de sete entidades e será substituído somente depois da aprovação do novo modelo conceitual.
+O arquivo `MODELO_LOGICO_ACCENTURE_C6.png` permanece no repositório apenas como histórico do antigo recorte técnico de sete entidades. Ele não representa a Entrega 2.
+
+## 1.2 Conversão do Modelo Conceitual para o Modelo Lógico
+
+![Modelo lógico relacional da QORE](MODELO_LOGICO_QORE_ENTREGA_2.png)
+
+O modelo lógico converte as 17 entidades conceituais em 17 tabelas. Relacionamentos 1:N foram implementados com a FK no lado N. As relações N:N entre projeto e funcionário e entre contrato processado e lote foram resolvidas pelas tabelas associativas `ALOCACAO_PROJETO` e `PARTICIPACAO_LOTE`, que também armazenam atributos próprios da participação.
+
+| Conversão | Implementação lógica |
+|---|---|
+| Cliente abre chamados | `chamado.id_cliente` referencia `cliente.id_cliente` |
+| Chamado possui reuniões | `reuniao.id_chamado` referencia `chamado.id_chamado` |
+| Escopo deriva de chamado e reunião | `escopo.id_chamado` e `escopo.id_reuniao` |
+| Proposta fundamenta contrato | `proposta.id_escopo` e `contrato_servico.id_proposta` único |
+| Contrato abre projetos | `projeto.id_contrato_servico` |
+| Funcionário participa de projeto | PK composta em `alocacao_projeto` |
+| Projeto produz entregas e automações | `entrega.id_projeto` e `automacao.id_projeto` |
+| Automação gera execuções | `execucao.id_automacao` |
+| Execução processa contratos e registra eventos | FKs em `contrato_processado` e `evento_execucao` |
+| Contrato participa de lotes | PK composta em `participacao_lote` |
+| Lote acompanha instâncias | `instancia_importacao.id_lote` |
+
+## 1.3 Chaves Primárias e Estrangeiras
+
+As entidades regulares usam `BIGINT UNSIGNED AUTO_INCREMENT` como chave primária substituta. A estratégia mantém as referências estáveis quando nomes, situações ou identificadores externos mudam. `ALOCACAO_PROJETO` usa a chave composta `(id_projeto, id_funcionario)` porque cada participação é identificada pelo par. `PARTICIPACAO_LOTE` usa `(id_contrato_processado, id_lote)` para impedir a duplicação do mesmo contrato dentro do mesmo lote.
+
+As FKs obrigatórias usam `NOT NULL`; os vínculos de suporte de `CHAMADO` com projeto, entrega e responsável são opcionais porque o chamado pode existir antes de um projeto ou sem se referir a uma entrega. Nenhuma FK usa exclusão em cascata: fatos históricos devem permanecer auditáveis.
+
+| Tabela | Chave primária | Chaves estrangeiras |
+|---|---|---|
+| `CLIENTE` | `id_cliente` | — |
+| `FUNCIONARIO` | `id_funcionario` | — |
+| `CHAMADO` | `id_chamado` | `id_cliente`, `id_projeto`, `id_entrega`, `id_responsavel` |
+| `REUNIAO` | `id_reuniao` | `id_chamado` |
+| `ESCOPO` | `id_escopo` | `id_chamado`, `id_reuniao` |
+| `PROPOSTA` | `id_proposta` | `id_escopo` |
+| `CONTRATO_SERVICO` | `id_contrato_servico` | `id_cliente`, `id_proposta`, `id_responsavel_qore` |
+| `PROJETO` | `id_projeto` | `id_contrato_servico`, `id_responsavel` |
+| `ALOCACAO_PROJETO` | `id_projeto, id_funcionario` | `id_projeto`, `id_funcionario` |
+| `ENTREGA` | `id_entrega` | `id_projeto`, `id_responsavel` |
+| `AUTOMACAO` | `id_automacao` | `id_projeto` |
+| `EXECUCAO` | `id_execucao` | `id_automacao` |
+| `CONTRATO_PROCESSADO` | `id_contrato_processado` | `id_execucao` |
+| `EVENTO_EXECUCAO` | `id_evento` | `id_execucao`, `id_contrato_processado` |
+| `LOTE_IMPORTACAO` | `id_lote` | — |
+| `INSTANCIA_IMPORTACAO` | `id_instancia` | `id_lote` |
+| `PARTICIPACAO_LOTE` | `id_contrato_processado, id_lote` | `id_contrato_processado`, `id_lote` |
+
+## 1.4 Normalização
+
+### Primeira Forma Normal (1FN)
+
+Cada coluna guarda um valor atômico. Reuniões, entregas, execuções, eventos e tickets não são listas dentro de projeto ou lote: cada ocorrência possui uma linha própria. A massa não armazena múltiplos funcionários, contratos ou tickets numa única coluna.
+
+### Segunda Forma Normal (2FN)
+
+Nas tabelas com chave composta, todos os atributos dependem da chave completa. Em `ALOCACAO_PROJETO`, função, período, dedicação e responsabilidade dependem conjuntamente do projeto e do funcionário. Em `PARTICIPACAO_LOTE`, situação e data de importação dependem do contrato processado dentro daquele lote.
+
+### Terceira Forma Normal (3FN)
+
+Dados do cliente ficam em `CLIENTE`, dados do funcionário em `FUNCIONARIO` e dados do projeto em `PROJETO`. As tabelas dependentes armazenam apenas suas FKs e atributos próprios, evitando repetir nome de cliente, e-mail do funcionário, situação de projeto ou ticket de lote. Métricas calculáveis, como taxa de sucesso e tempo médio, são produzidas por consultas e não persistidas como atributos redundantes.
+
+## 1.5 Justificativas Técnicas da Implementação
+
+| Decisão de integridade | Regras atendidas | Justificativa |
+|---|---|---|
+| `CHECK` nos estados de execução, contrato e importação | RN05, RN13, RN14, RN15 e RN16 | Impede estados fora dos ciclos de vida confirmados e torna retomada e auditoria determinísticas. |
+| `CHECK` nos tipos, prioridades e estados dos chamados | RN17 e RN28 | Garante que atendimento inicial e suporte usem os domínios documentados. |
+| `UNIQUE` para identificação empresarial e e-mail corporativo | RN31 e RN32 | Reduz duplicidade sem publicar identificadores reais na massa acadêmica. |
+| Unicidade de versão por escopo, entrega e automação | RN18, RN25, RN26 e RN29 | Uma versão precisa ser identificável dentro do contexto ao qual pertence. |
+| Restrições de datas e término | RN13, RN15, RN24, RN25 e RN27 | Impedem encerramento anterior ao início e exigem data final nos estados terminais. |
+| PKs compostas nas tabelas associativas | RN10, RN11, RN14 e RN24 | Evitam repetir a mesma participação de funcionário ou contrato no mesmo contexto. |
+| FKs sem `ON DELETE CASCADE` | RN13, RN25, RN27 e RN31 | Preservam histórico de chamados, projetos, entregas, execuções e importações. |
+| Índices nos caminhos das consultas G01–G10 | P01–P10 | Sustentam filtros por cliente, situação, período, responsável, execução e lote. |
+
+Dados comerciais reais, credenciais, números reais de contrato e respostas brutas permanecem fora da massa acadêmica conforme RN30–RN32 e os princípios de minimização da LGPD.
+
+## 1.6 Arquitetura Analítica, KPIs e Rastreabilidade
+
+O modelo operacional pode alimentar uma camada analítica por extração controlada. As consultas `G01` a `G10` funcionam como primeira camada de BI. Uma evolução pode materializar fatos de chamado, projeto, entrega e execução, mantendo dimensões de cliente, funcionário, tempo e situação. IA pode apoiar previsão de prazo e classificação de erro somente depois de existir histórico suficiente, anonimizado e validado.
+
+| Problema ou KPI | Fórmula e período | Tabelas | Consulta |
+|---|---|---|---|
+| P01 — vínculo ponta a ponta | registros ligados por chamado, projeto e entrega; consulta sob demanda | `CLIENTE`, `CHAMADO`, `CONTRATO_SERVICO`, `PROJETO`, `ENTREGA` | G10 |
+| P02 — conversão comercial | propostas aprovadas ÷ propostas decididas, por mês | `ESCOPO`, `PROPOSTA`, `CONTRATO_SERVICO` | G03, G10 |
+| P03 — projetos ativos | quantidade por situação e responsável, semanal | `PROJETO`, `FUNCIONARIO`, `ALOCACAO_PROJETO` | G04, G05 |
+| P04 — tempo de atendimento | média entre abertura e encerramento, por mês | `CHAMADO`, `CLIENTE` | G01, G02 |
+| P05 — taxa de aceite | entregas aceitas ou com ressalva ÷ entregas decididas, por mês | `PROJETO`, `ENTREGA` | G06 |
+| P06 — automações por projeto | quantidade e resultados por automação, mensal | `PROJETO`, `AUTOMACAO`, `EXECUCAO` | G07, G10 |
+| P07 — taxa de sucesso | contratos com sucesso ÷ total processado, por execução | `EXECUCAO`, `CONTRATO_PROCESSADO` | G07 |
+| P08 — erros de processamento | contratos com erro por tipo e período | `EXECUCAO`, `CONTRATO_PROCESSADO`, `EVENTO_EXECUCAO` | G08 |
+| P09 — lotes pendentes | quantidade e idade dos lotes não concluídos, diária | `LOTE_IMPORTACAO`, `INSTANCIA_IMPORTACAO` | G09 |
+| P10 — proteção e auditoria | exceções detectadas pelas regras de auditoria, por execução | todas as tabelas sensíveis | A01–A10 |
+
+## 2. Modelo Lógico Relacional
+
+O modelo oficial da Entrega 2 é [MODELO_LOGICO_QORE_ENTREGA_2.png](MODELO_LOGICO_QORE_ENTREGA_2.png). Ele exibe tabelas, tipos MySQL, PKs, FKs, nulabilidade e cardinalidades mínimas e máximas nas duas extremidades das ligações. O diagrama foi criado com Python e Pillow seguindo a estrutura visual solicitada para o modelo lógico do brModelo.
+
+## 3. Script SQL Completo
+
+O arquivo [docs/qore_entrega_2.sql](docs/qore_entrega_2.sql) contém criação do banco, 17 tabelas, constraints, índices, massa fictícia, exemplos de `INSERT`, `SELECT` com `JOIN`, `UPDATE`, `DELETE`, dez consultas gerenciais (`G01`–`G10`) e dez consultas de auditoria (`A01`–`A10`).
+
+## 4. Massa de Dados
+
+A massa está incluída no script e representa o porte informado com **7 clientes ativos, 21 projetos ativos e 101 chamados fictícios**. Os projetos estão distribuídos entre contratos dos sete clientes e todos possuem equipe alocada. A massa também cobre propostas aprovada/rejeitada/expirada, entregas aceita e aceita com ressalva, execuções com sucesso e erro, contratos processados, eventos, lotes concluído/pendente/com erro e instâncias em estados variados.
+
+## 5. Repositório GitHub
+
+O README é o relatório principal. Os artefatos permanecem em caminhos relativos e formatos aceitos pela rubrica. A colaboração e os commits de cada integrante são responsabilidade do grupo e não foram alterados automaticamente nesta preparação.
 
 ---
 
@@ -866,7 +989,7 @@ As alternativas rejeitadas não foram descartadas por inexistirem no sistema fí
 
 ---
 
-### Uso de Inteligência Artificial
+## 6. Uso de Inteligência Artificial
 
 O grupo utilizou **ChatGPT/Codex, da OpenAI**, como apoio à leitura, organização, revisão e documentação. A ferramenta também atuou como recurso de **mentoria técnica e acadêmica**, auxiliando na comparação de alternativas, na identificação de inconsistências e na organização do raciocínio.
 
@@ -976,17 +1099,34 @@ A IA não teve acesso autônomo ao ambiente produtivo, não realizou a pesquisa 
 | Justificativa da escolha final | Os documentos agora compartilham o mesmo escopo, as mesmas entidades e as mesmas cardinalidades, cobrindo do cadastro do cliente à finalização e ao suporte. |
 | Reflexão crítica | A consistência entre texto, imagem e dicionário precisa ser verificada de forma cruzada; atualizar apenas um artefato recriaria a lacuna apontada na avaliação. |
 
+#### Uso 9 — Modelo lógico, SQL, massa e apresentação da Entrega 2
+
+| Item | Registro |
+|---|---|
+| Ferramenta e etapa | ChatGPT/Codex — conversão lógica, implementação MySQL, massa fictícia, consultas, documentação e slides. |
+| Motivação | Concluir os artefatos técnicos da Entrega 2 mantendo alinhamento com as 17 entidades e com a rubrica oficial. |
+| Prompt utilizado | “Pode implementar e testar tudo que for necessário para concluir a Entrega 2 hoje, sem commitar nem enviar ao GitHub.” |
+| Resposta recebida | Modelo lógico, script MySQL com massa, consultas G01–G10 e A01–A10, levantamento, atualização do README, apresentação e roteiro. |
+| Fontes consultadas e verificadas | Esqueleto oficial da Entrega 2, README, DER, cardinalidades e dicionário de dados. O SQL foi executado num MySQL 8.4 local descartável. |
+| Trechos rejeitados ou corrigidos | A auditoria A07 identificou totais fictícios divergentes da quantidade de contratos inseridos; os totais foram corrigidos e o script integral foi repetido. A data da visita não foi inventada porque não aparece nos artefatos. |
+| Justificativa da escolha final | Todos os artefatos derivam do mesmo contrato de 17 entidades, e as consultas cobrem os problemas P01–P10 e as regras RN citadas. |
+| Reflexão crítica | Geração assistida não substitui validação no SGBD nem conferência humana de evidências presenciais e fatos organizacionais. |
+
+---
+
+## 7. Apresentação Corporativa Final
+
+A apresentação está em [apresentacao/Entrega_2_QORE.pptx](apresentacao/Entrega_2_QORE.pptx), acompanhada pelo [roteiro de apresentação](apresentacao/ROTEIRO_APRESENTACAO.md). A sequência cobre contexto, problema, solução, DER conceitual, modelo lógico, implementação MySQL, consultas gerenciais, auditorias, potencial de BI/IA e demonstração ao vivo. O roteiro distribui a participação entre os integrantes e mantém a exposição dentro do limite de oito minutos definido pelo professor.
+
 ---
 
 ## Conclusão
 
-O Bloco A da revisão ampliou o trabalho para o ciclo completo dos serviços da QORE Tecnologia, desde o cadastro do cliente até a finalização do projeto. O levantamento passou a representar chamados, análise, reunião, escopo, proposta, contratação, projeto, equipe, entrega, aceite e suporte, preservando a automação Accenture C6 como subsistema técnico de um projeto.
+A Entrega 2 cobre o ciclo de serviços da QORE desde o cadastro do cliente até a finalização e o suporte, mantendo a automação como subsistema técnico ligado ao projeto. O modelo possui 17 entidades, 19 relacionamentos, 34 requisitos funcionais, 12 requisitos não funcionais e 32 regras de negócio.
 
-Foram registrados dez problemas rastreáveis, 34 requisitos funcionais, 12 requisitos não funcionais e 32 regras de negócio. Os códigos técnicos originais foram preservados e o novo conteúdo organizacional foi acrescentado sem apresentar como confirmados os processos que ainda dependem de validação.
+O modelo lógico transforma os relacionamentos em chaves estrangeiras, resolve relações N:N com tabelas associativas e documenta nulabilidade, unicidade, domínios e integridade temporal. O script MySQL cria 17 tabelas, insere massa fictícia e oferece dez consultas gerenciais e dez auditorias rastreáveis.
 
-O Bloco B substituiu o modelo conceitual restrito à automação por um DER que integra o núcleo organizacional ao subsistema Accenture C6. O diagrama adota relacionamentos por losangos, identificadores sublinhados, entidades associativas e cardinalidades mínima e máxima nos dois lados.
-
-A correção da Entrega 1 foi completada com o fluxo organizacional integral, a arquitetura de origem e responsabilidade dos dados, a matriz de 19 relacionamentos e o dicionário HTML das 17 entidades. Esses artefatos permanecem como proposta acadêmica validada internamente; a aprovação formal cabe ao professor, e o modelo lógico deverá ser produzido na etapa correspondente da disciplina.
+O script foi executado do zero no MySQL 8.4.13. A massa final não apresentou violações nas auditorias. Essa evidência é local e acadêmica; a aprovação formal permanece sob responsabilidade do professor e o grupo deve repetir a demonstração no equipamento da apresentação.
 
 ---
 
@@ -996,6 +1136,7 @@ A correção da Entrega 1 foi completada com o fluxo organizacional integral, a 
 - QORE TECNOLOGIA. *Site institucional*. Disponível em: [https://www.qoretecnologia.com.br/](https://www.qoretecnologia.com.br/). Acesso em: 22 set. 2026.
 - QORE TECNOLOGIA. *Página institucional no LinkedIn*. Disponível em: [https://br.linkedin.com/company/titectecnologia](https://br.linkedin.com/company/titectecnologia). Acesso em: 22 set. 2026.
 - UNICID. *00-c_Esqueleto_Entrega_1.md — Entrega 1: Modelo Conceitual (DER)*. Material da disciplina Modelagem de Banco de Dados, 2026.
+- UNICID. *00-d_Esqueleto_Entrega_2.md — Modelo Lógico, Implementação SQL e Apresentação Final*. Material da disciplina Modelagem de Banco de Dados, 2026.
 - QORE TECNOLOGIA. *Descritivo do processo, execução da API e RPA, regras semanais e documentação da integração CSLOG*. Documentação interna consultada pelo grupo, 2026.
 - QORE TECNOLOGIA. *Código-fonte da automação Accenture C6*. Arquivos `agendador.py`, `consulta_accenture_sessao_compartilhada.py`, `accenture_local_api/db.py`, `accenture_local_api/contratos.py`, `depara_accenture.py` e `imp_arquivo.py`. Consulta controlada pelo grupo, 2026.
 
@@ -1020,4 +1161,4 @@ Os critérios atitudinais serão avaliados por meio da avaliação 360º entre o
 | Procedimental — requisitos, fluxogramas, dicionário de dados e DER | 50% |
 | Atitudinal — participação, comprometimento, colaboração e autonomia | 20% |
 
-**Entrega final:** este `README.md` completo e o DER anexado em imagem no repositório GitHub do grupo. O PDF permanece como material complementar.
+**Entrega final:** relatório técnico no `README.md`, levantamento, DER conceitual, modelo lógico, dicionário HTML, script MySQL com massa e consultas, evidência de validação, apresentação e roteiro. A fotografia presencial e a data real da visita devem ser acrescentadas pelo grupo antes do envio ao professor.
